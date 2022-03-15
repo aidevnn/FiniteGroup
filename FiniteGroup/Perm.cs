@@ -25,6 +25,7 @@ namespace FiniteGroup
 
         int[] table;
         public int Order => table.Length - 1;
+        public int Signature { get; private set; }
         public int Pow { get; private set; }
         public string Name { get; private set; }
 
@@ -60,8 +61,32 @@ namespace FiniteGroup
                     break;
             }
 
-            Name = $"{pow}";
+            Signature = 1;
+            for (int i = 1; i < Order; ++i)
+            {
+                for (int j = i + 1; j <= Order; ++j)
+                {
+                    if (table[i] > table[j])
+                        Signature *= -1;
+                }
+            }
+
             Pow = pow;
+            string s = Signature == 1 ? "+" : "-";
+            Name = $"{pow}{s}";
+        }
+
+        private void Csignature()
+        {
+            Signature = 1;
+            for(int i = 1; i < Order; ++i)
+            {
+                for(int j = i + 1; j <= Order; ++j)
+                {
+                    if (table[i] > table[j])
+                        Signature *= -1;
+                }
+            }
         }
 
         public Perm Op(Perm p)
@@ -82,6 +107,9 @@ namespace FiniteGroup
 
             if (Pow != other.Pow)
                 return Pow.CompareTo(other.Pow);
+
+            if (Signature != other.Signature)
+                return -Signature.CompareTo(other.Signature);
 
             for (int k = 1; k <= Order; ++k)
             {
@@ -108,16 +136,18 @@ namespace FiniteGroup
         }
     }
 
-    public class Sigma
+    public class Sn
     {
         public int Order { get; private set; }
-        public Sigma(int order)
+        public Sn(int order)
         {
             Order = order;
         }
 
         public Perm Cycle(params int[] cycle)
         {
+            // Perfect coder never catch exception...
+
             var arr = Enumerable.Range(0, Order + 1).ToArray();
             var c = arr[cycle[0]];
             for (int k = 0; k < cycle.Length - 1; ++k)
@@ -133,7 +163,7 @@ namespace FiniteGroup
         public Perm RCycle(int start, int count) => Cycle(Enumerable.Range(start, count).ToArray());
         public Perm PCycle(int count) => RCycle(1, count);
 
-        public HashSet<Perm> Group(params Perm[] perms)
+        public static HashSet<Perm> Group(params Perm[] perms)
         {
             var hs = new HashSet<Perm>(perms);
             int sz = 0;
@@ -151,7 +181,7 @@ namespace FiniteGroup
             return hs;
         }
 
-        public void DisplayGroup(params Perm[] perms)
+        public static void DisplayGroup(params Perm[] perms)
         {
             var set = Group(perms).ToList();
             set.Sort();
@@ -160,7 +190,7 @@ namespace FiniteGroup
             Console.WriteLine();
         }
 
-        public void TableGroup(params Perm[] perms)
+        public static void TableGroup(params Perm[] perms)
         {
             var set = Group(perms).ToList();
             set.Sort();
@@ -169,7 +199,7 @@ namespace FiniteGroup
             Console.WriteLine();
         }
 
-        public void DetailGroup(params Perm[] perms)
+        public static void DetailGroup(params Perm[] perms)
         {
             var set = Group(perms).ToList();
             set.Sort();

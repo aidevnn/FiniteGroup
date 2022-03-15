@@ -6,20 +6,20 @@ var s4 = new Sigma(4);
 s4.DetailGroup(s4.Tau(2), s4.Tau(3, 4));
 ```
 
-Will output the permutations (with its name and its order) and the generated group table.
+Will output the permutations (with its name, its order and its signature) and the generated group table.
 
 ```
 [ 1  2  3  4](@)
-[ 1  2  3  4](1)
+[ 1  2  3  4](1+)
 
 [ 1  2  3  4](a)
-[ 1  2  4  3](2)
+[ 2  1  4  3](2+)
 
 [ 1  2  3  4](b)
-[ 2  1  3  4](2)
+[ 1  2  4  3](2-)
 
 [ 1  2  3  4](c)
-[ 2  1  4  3](2)
+[ 2  1  3  4](2-)
 
  *|@ a b c
 --|--------
@@ -27,6 +27,7 @@ Will output the permutations (with its name and its order) and the generated gro
  a|a @ c b
  b|b c @ a
  c|c b a @
+
 ```
 
 And
@@ -39,22 +40,22 @@ Will output
 
 ```
 [ 1  2  3  4](@)
-[ 1  2  3  4](1)
+[ 1  2  3  4](1+)
 
 [ 1  2  3  4](a)
-[ 1  3  2  4](2)
+[ 1  3  2  4](2-)
 
 [ 1  2  3  4](b)
-[ 2  1  3  4](2)
+[ 2  1  3  4](2-)
 
 [ 1  2  3  4](c)
-[ 3  2  1  4](2)
+[ 3  2  1  4](2-)
 
 [ 1  2  3  4](d)
-[ 2  3  1  4](3)
+[ 2  3  1  4](3+)
 
 [ 1  2  3  4](e)
-[ 3  1  2  4](3)
+[ 3  1  2  4](3+)
 
  *|@ a b c d e
 --|------------
@@ -78,22 +79,22 @@ and you will obtain a commutative group
 
 ```
 [ 1  2  3  4  5](@)
-[ 1  2  3  4  5](1)
+[ 1  2  3  4  5](1+)
 
 [ 1  2  3  4  5](a)
-[ 1  2  3  5  4](2)
+[ 1  2  3  5  4](2-)
 
 [ 1  2  3  4  5](b)
-[ 2  3  1  4  5](3)
+[ 2  3  1  4  5](3+)
 
 [ 1  2  3  4  5](c)
-[ 3  1  2  4  5](3)
+[ 3  1  2  4  5](3+)
 
 [ 1  2  3  4  5](d)
-[ 2  3  1  5  4](6)
+[ 2  3  1  5  4](6-)
 
 [ 1  2  3  4  5](e)
-[ 3  1  2  5  4](6)
+[ 3  1  2  5  4](6-)
 
  *|@ a b c d e
 --|------------
