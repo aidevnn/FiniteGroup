@@ -24,7 +24,7 @@ namespace FiniteGroup
         }
 
         int[] table;
-        public int Order => table.Length;
+        public int Order => table.Length - 1;
         public int Pow { get; private set; }
         public string Name { get; private set; }
 
@@ -66,7 +66,7 @@ namespace FiniteGroup
 
         public Perm Op(Perm p)
         {
-            var r = new Perm(table.Length - 1);
+            var r = new Perm(Order);
             Compose(table, p.table, r.table);
             r.Cpow();
             return r;
