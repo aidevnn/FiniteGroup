@@ -2,8 +2,8 @@
 Group theory. A simple C# code to show quickly generated group. 
 
 ```
-var s4 = new Sigma(4);
-s4.DetailGroup(s4.Tau(2), s4.Tau(3, 4));
+var s4 = new Sn(4);
+Sn.DetailGroup(s4.Tau(2), s4.Tau(3, 4));
 ```
 
 Will output the permutations (with its name, its order and its signature) and the generated group table.
@@ -71,8 +71,8 @@ Will output
 ## Now try disjunct 3-cycle and transposition.
 
 ```
-var s5 = new Sigma(5);
-s5.DetailGroup(s5.PCycle(3), s5.Tau(4, 5));
+var s5 = new Sn(5);
+Sn.DetailGroup(s5.PCycle(3), s5.Tau(4, 5));
 ```
 
 and you will obtain a commutative group
