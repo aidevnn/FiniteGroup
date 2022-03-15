@@ -25,7 +25,7 @@ namespace FiniteGroup
 
         int[] table;
         public int N => table.Length - 1;
-        public int Signature { get; private set; }
+        public int Sgn { get; private set; }
         public int Order { get; private set; }
         public string Name { get; private set; }
 
@@ -61,18 +61,18 @@ namespace FiniteGroup
                     break;
             }
 
-            Signature = 1;
+            Sgn = 1;
             for (int i = 1; i < N; ++i)
             {
                 for (int j = i + 1; j <= N; ++j)
                 {
                     if (table[i] > table[j])
-                        Signature *= -1;
+                        Sgn *= -1;
                 }
             }
 
             Order = order;
-            string s = Signature == 1 ? "+" : "-";
+            string s = Sgn == 1 ? "+" : "-";
             Name = $"{order}{s}";
         }
 
@@ -95,8 +95,8 @@ namespace FiniteGroup
             if (Order != other.Order)
                 return Order.CompareTo(other.Order);
 
-            if (Signature != other.Signature)
-                return -Signature.CompareTo(other.Signature);
+            if (Sgn != other.Sgn)
+                return -Sgn.CompareTo(other.Sgn);
 
             for (int k = 1; k <= N; ++k)
             {
