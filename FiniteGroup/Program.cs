@@ -21,9 +21,9 @@ namespace FiniteGroup
             //Sn.DetailGroup(s7.PCycle(3), s7.Tau(4, 5), s7.Tau(6, 7));
             //Sn.DetailGroup(s7.PCycle(3), s7.RCycle(4, 4));
 
-            Sn.DetailGroup(s7.PCycle(4));
-            Sn.DetailGroup(s7.RCycle(5, 3));
-            Sn.DetailGroup(s7.PCycle(4), s7.RCycle(5, 3));
+            Sn.DetailGroup(s7.PCycle(3));
+            Sn.DetailGroup(s7.RCycle(4, 4));
+            Sn.DetailGroup(s7.PCycle(3), s7.RCycle(4, 4));
 
             //Sn.DetailGroup(s8.RCycle(3, 6), s8.Tau(2));
         }

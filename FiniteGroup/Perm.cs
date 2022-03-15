@@ -24,22 +24,22 @@ namespace FiniteGroup
         }
 
         int[] table;
-        public int Order => table.Length - 1;
+        public int N => table.Length - 1;
         public int Signature { get; private set; }
-        public int Pow { get; private set; }
+        public int Order { get; private set; }
         public string Name { get; private set; }
 
-        public Perm(int order)
+        public Perm(int n)
         {
-            table = Enumerable.Range(0, order + 1).ToArray();
-            Pow = 1;
+            table = Enumerable.Range(0, n + 1).ToArray();
+            Order = 1;
             Name = "-";
         }
 
         public Perm(int[] t)
         {
             table = t.ToArray();
-            Cpow();
+            Corder();
         }
 
         public int this[int k]
@@ -47,14 +47,14 @@ namespace FiniteGroup
             get => table[k];
         }
 
-        private void Cpow()
+        private void Corder()
         {
             int[] cache1 = Enumerable.Range(0, table.Length).ToArray();
             int[] cache0 = new int[table.Length];
-            int pow = 0;
+            int order = 0;
             for (int k = 0; k < table.Length; ++k)
             {
-                ++pow;
+                ++order;
                 Compose(table, cache1, cache0);
                 cache0.CopyTo(cache1, 0);
                 if (IsIdentity(cache1))
@@ -62,38 +62,25 @@ namespace FiniteGroup
             }
 
             Signature = 1;
-            for (int i = 1; i < Order; ++i)
+            for (int i = 1; i < N; ++i)
             {
-                for (int j = i + 1; j <= Order; ++j)
+                for (int j = i + 1; j <= N; ++j)
                 {
                     if (table[i] > table[j])
                         Signature *= -1;
                 }
             }
 
-            Pow = pow;
+            Order = order;
             string s = Signature == 1 ? "+" : "-";
-            Name = $"{pow}{s}";
-        }
-
-        private void Csignature()
-        {
-            Signature = 1;
-            for(int i = 1; i < Order; ++i)
-            {
-                for(int j = i + 1; j <= Order; ++j)
-                {
-                    if (table[i] > table[j])
-                        Signature *= -1;
-                }
-            }
+            Name = $"{order}{s}";
         }
 
         public Perm Op(Perm p)
         {
-            var r = new Perm(Order);
+            var r = new Perm(N);
             Compose(table, p.table, r.table);
-            r.Cpow();
+            r.Corder();
             return r;
         }
 
@@ -102,16 +89,16 @@ namespace FiniteGroup
 
         public int CompareTo(Perm other)
         {
-            if (other.Order != Order)
+            if (other.N != N)
                 throw new Exception();
 
-            if (Pow != other.Pow)
-                return Pow.CompareTo(other.Pow);
+            if (Order != other.Order)
+                return Order.CompareTo(other.Order);
 
             if (Signature != other.Signature)
                 return -Signature.CompareTo(other.Signature);
 
-            for (int k = 1; k <= Order; ++k)
+            for (int k = 1; k <= N; ++k)
             {
                 var t0 = this[k];
                 var t1 = other[k];
@@ -138,17 +125,17 @@ namespace FiniteGroup
 
     public class Sn
     {
-        public int Order { get; private set; }
-        public Sn(int order)
+        public int N { get; private set; }
+        public Sn(int n)
         {
-            Order = order;
+            N = n;
         }
 
         public Perm Cycle(params int[] cycle)
         {
             // Perfect coder never catch exception...
 
-            var arr = Enumerable.Range(0, Order + 1).ToArray();
+            var arr = Enumerable.Range(0, N + 1).ToArray();
             var c = arr[cycle[0]];
             for (int k = 0; k < cycle.Length - 1; ++k)
                 arr[cycle[k]] = arr[cycle[k + 1]];
