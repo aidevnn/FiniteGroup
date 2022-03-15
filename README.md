@@ -67,7 +67,7 @@ Will output
 
 ```
 
-## Now try a disjuncted cycle and permutation
+## Now try a disjuncted 3-cycle and transposition.
 
 ```
 var s5 = new Sigma(5);
