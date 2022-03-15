@@ -6,7 +6,7 @@ var s4 = new Sigma(4);
 s4.DetailGroup(s4.Tau(2), s4.Tau(3, 4));
 ```
 
-Will output the permutations and the generated  group table
+Will output the permutations (with its name and its order) and the generated group table.
 
 ```
 [ 1  2  3  4](@)
