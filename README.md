@@ -169,7 +169,7 @@ c = (3)<4>
 
 ```
 
-Comparing Z/2Z x Z/2Z x Z/2Z with from Z/2Z x Z/4Z
+Comparing Z/2Z x Z/2Z x Z/2Z with Z/2Z x Z/4Z
 ```
 ZxZ.DetailGroup(2, 2, 2);
 
