@@ -242,9 +242,19 @@ namespace FiniteGroup
         }
 
         public static void DisplayGroup(Sn sn) => DisplayGroup(Enumerable.Range(2, sn.N - 1).Select(a => sn.Tau(a)).ToArray());
+        public static void TableGroup(Sn sn) => TableGroup(Enumerable.Range(2, sn.N - 1).Select(a => sn.Tau(a)).ToArray());
         public static void DetailGroup(Sn sn) => DetailGroup(Enumerable.Range(2, sn.N - 1).Select(a => sn.Tau(a)).ToArray());
         public static void DetailSn(int n) => DetailGroup(new Sn(n));
+        public static void TableSn(int n) => TableGroup(new Sn(n));
         public static void DisplaySn(int n) => DisplayGroup(new Sn(n));
+
+        static List<string> GenLetters(int n)
+        {
+            if (n > 50)
+                return Enumerable.Range(1, n).Select(a => $"E{a,2:0000}").ToList();
+
+            return "@abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ".Take(n).Select(c => $"{c}").ToList();
+        }
 
         static void DisplayGroup(List<Perm> set)
         {
@@ -256,9 +266,7 @@ namespace FiniteGroup
                 return;
             }
 
-            var word = "@abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ".Take(set.Count).Select(c => $"{c}").ToList();
-            if (set.Count > 50)
-                word = Enumerable.Range(1, set.Count).Select(a => $"E{a,2:0000}").ToList();
+            var word = GenLetters(set.Count);
             for (int k = 0; k < set.Count; ++k)
                 set[k].Display(word[k].ToString());
 
@@ -275,7 +283,7 @@ namespace FiniteGroup
                 return;
             }
 
-            var word = "@abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ".Take(set.Count).ToList();
+            var word = GenLetters(set.Count).Select(w => w[0]).ToList();
             Dictionary<char, Perm> ce = new Dictionary<char, Perm>();
             Dictionary<Perm, char> ec = new Dictionary<Perm, char>();
             for (int k = 0; k < set.Count; ++k)

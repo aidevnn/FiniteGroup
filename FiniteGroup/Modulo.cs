@@ -121,10 +121,13 @@ namespace FiniteGroup
             Console.WriteLine();
         }
 
-        public static void DetailGroup(Zn zn) => DetailGroup(zn.Elt(1));
-        public static void DetailZn(int n) => DetailGroup(new Zn(n));
         public static void DisplayGroup(Zn zn) => DisplayGroup(zn.Elt(1));
+        public static void TableGroup(Zn zn) => TableGroup(zn.Elt(1));
+        public static void DetailGroup(Zn zn) => DetailGroup(zn.Elt(1));
+
         public static void DisplayZn(int n) => DisplayGroup(new Zn(n));
+        public static void TableZn(int n) => TableGroup(new Zn(n));
+        public static void DetailZn(int n) => DetailGroup(new Zn(n));
 
         public static void DetailGroup(params Modulo[] mods)
         {
@@ -137,6 +140,14 @@ namespace FiniteGroup
             Console.WriteLine();
         }
 
+        static List<string> GenLetters(int n)
+        {
+            if (n > 50)
+                return Enumerable.Range(1, n).Select(a => $"E{a,2:0000}").ToList();
+
+            return "@abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ".Take(n).Select(c => $"{c}").ToList();
+        }
+
         static void DisplayGroup(List<Modulo> set)
         {
             Console.WriteLine("|G| = {0} in Z/{1}Z", set.Count, set[0].N);
@@ -147,9 +158,7 @@ namespace FiniteGroup
                 return;
             }
 
-            var word = "@abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ".Take(set.Count).Select(c => $"{c}").ToList();
-            if (set.Count > 50)
-                word = Enumerable.Range(1, set.Count).Select(a => $"E{a,2:0000}").ToList();
+            var word = GenLetters(set.Count);
             for (int k = 0; k < set.Count; ++k)
                 set[k].Display(word[k].ToString());
 
@@ -166,7 +175,7 @@ namespace FiniteGroup
                 return;
             }
 
-            var word = "@abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ".Take(set.Count).ToList();
+            var word = GenLetters(set.Count).Select(w => w[0]).ToList();
             Dictionary<char, Modulo> ce = new Dictionary<char, Modulo>();
             Dictionary<Modulo, char> ec = new Dictionary<Modulo, char>();
             for (int k = 0; k < set.Count; ++k)

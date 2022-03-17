@@ -91,7 +91,7 @@ namespace FiniteGroup
         }
 
         public override int GetHashCode() => hashcode;
-        public override string ToString() => string.Format("({1})<{0}>", Order, string.Join(" ,", M));
+        public override string ToString() => string.Format("({1})<{0}>", Order, string.Join(", ", M));
         public void Display(string name = "")
         {
             var nm = "m";
@@ -190,7 +190,17 @@ namespace FiniteGroup
         public static void DisplayGroup(params int[] n) => DisplayGroup(new ZxZ(n));
         public static void TableGroup(params int[] n) => TableGroup(new ZxZ(n));
         public static void DetailGroup(params int[] n) => DetailGroup(new ZxZ(n));
+        public static void DisplayZxZ(params int[] n) => DisplayGroup(n);
+        public static void TableZxZ(params int[] n) => DetailGroup(n);
+        public static void DetailZxZ(params int[] n) => DetailGroup(n);
 
+        static List<string> GenLetters(int n)
+        {
+            if (n > 50)
+                return Enumerable.Range(1, n).Select(a => $"E{a,2:0000}").ToList();
+
+            return "@abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ".Take(n).Select(c => $"{c}").ToList();
+        }
 
         static void DisplayGroup(List<ModuloTuple> set)
         {
@@ -203,7 +213,7 @@ namespace FiniteGroup
                 return;
             }
 
-            var word = "@abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ".Take(set.Count).Select(c => $"{c}").ToList();
+            var word = GenLetters(set.Count);
             if (set.Count > 50)
                 word = Enumerable.Range(1, set.Count).Select(a => $"E{a,2:0000}").ToList();
             for (int k = 0; k < set.Count; ++k)
@@ -224,7 +234,7 @@ namespace FiniteGroup
                 return;
             }
 
-            var word = "@abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ".Take(set.Count).ToList();
+            var word = GenLetters(set.Count).Select(w => w[0]).ToList();
             Dictionary<char, ModuloTuple> ce = new Dictionary<char, ModuloTuple>();
             Dictionary<ModuloTuple, char> ec = new Dictionary<ModuloTuple, char>();
             for (int k = 0; k < set.Count; ++k)
