@@ -274,3 +274,81 @@ k = (11)<12>
 
 
 ```
+
+# Diedral Dn generations
+
+```
+Sn.Diedral(4);
+
+e0  = [ 2  1  3  4]<2->
+e0' = [ 2  1  3  4]<2->
+e1  = [ 3  4  2  1]<4->
+e1' = [ 4  3  1  2]<4->
+e0 * e1 * e0' = e1'
+r   = [ 4  3  1  2]<4->
+
+|G| = 8 in S4
+@ = [ 1  2  3  4]<1+>
+a = [ 1  2  4  3]<2->
+b = [ 2  1  3  4]<2->
+c = [ 2  1  4  3]<2+>
+d = [ 3  4  1  2]<2+>
+e = [ 4  3  2  1]<2+>
+f = [ 3  4  2  1]<4->
+g = [ 4  3  1  2]<4->
+
+|G| = 8 in S4
+ *|@ a b c d e f g
+--|----------------
+ @|@ a b c d e f g
+ a|a @ c b g f e d
+ b|b c @ a f g d e
+ c|c b a @ e d g f
+ d|d f g e @ c a b
+ e|e g f d c @ b a
+ f|f d e g b a c @
+ g|g e d f a b @ c
+ 
+```
+And D6 (slow... can be improved)
+```
+Sn.Diedral(6);
+
+e0  = [ 2  1  3  4  5  6]<2->
+e0' = [ 2  1  3  4  5  6]<2->
+e1  = [ 2  5  4  3  1  6]<6->
+e1' = [ 5  1  4  3  2  6]<6->
+e0 * e1 * e0' = e1'
+r   = [ 5  1  4  3  2  6]<6->
+
+|G| = 12 in S6
+@ = [ 1  2  3  4  5  6]<1+>
+a = [ 1  2  4  3  5  6]<2->
+b = [ 1  5  3  4  2  6]<2->
+c = [ 2  1  3  4  5  6]<2->
+d = [ 5  2  3  4  1  6]<2->
+e = [ 1  5  4  3  2  6]<2+>
+f = [ 2  1  4  3  5  6]<2+>
+g = [ 5  2  4  3  1  6]<2+>
+h = [ 2  5  3  4  1  6]<3+>
+i = [ 5  1  3  4  2  6]<3+>
+j = [ 2  5  4  3  1  6]<6->
+k = [ 5  1  4  3  2  6]<6->
+
+|G| = 12 in S6
+ *|@ a b c d e f g h i j k
+--|------------------------
+ @|@ a b c d e f g h i j k
+ a|a @ e f g b c d j k h i
+ b|b e @ i h a k j d c g f
+ c|c f h @ i j a k b d e g
+ d|d g i h @ k j a c b f e
+ e|e b a k j @ i h g f d c
+ f|f c j a k h @ i e g b d
+ g|g d k j a i h @ f e c b
+ h|h j c d b f g e i @ k a
+ i|i k d b c g e f @ h a j
+ j|j h f g e c d b k a i @
+ k|k i g e f d b c a j @ h
+
+```

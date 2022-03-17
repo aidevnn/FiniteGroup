@@ -254,7 +254,7 @@ namespace FiniteGroup
             foreach (var e0 in set)
             {
                 var v0 = ec[e0].ToString();
-                var l0 = set.Select(e1 => ec[e0.Op(e1)]).ToList();
+                var l0 = set.Select(e1 => ec[e1.Op(e0)]).ToList();
                 Console.WriteLine(MyFormat(v0, " ", l0));
             }
 

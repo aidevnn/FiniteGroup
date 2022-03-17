@@ -80,9 +80,8 @@ namespace FiniteGroup
 
         public static void Main(string[] args)
         {
-
-            ZxZ.DisplayGroup(12);
-
+            Sn.Diedral(4);
+            Sn.Diedral(6);
         }
     }
 }

@@ -110,7 +110,7 @@ namespace FiniteGroup
             hashcode = GenHash(N, table);
         }
 
-        public Perm Op(Perm p) => Op(table, p.table);
+        public Perm Op(Perm p) => Op(p.table, table);
 
         public bool Equals(Perm other) => table.Length == other.table.Length && hashcode == other.hashcode;
         public override int GetHashCode() => hashcode;
@@ -180,6 +180,30 @@ namespace FiniteGroup
         public Perm Tau(int a, int b) => Cycle(a, b);
         public Perm RCycle(int start, int count) => Cycle(Enumerable.Range(start, count).ToArray());
         public Perm PCycle(int count) => RCycle(1, count);
+
+        public static void Diedral(int n)
+        {
+            var sn = GroupSn(n);
+            foreach (var e0 in sn.Where(a => a.Order == 2))
+            {
+                foreach (var e1 in sn.Where(a => a.Order == n))
+                {
+                    var e2 = e0.Op(e1.Op(e0.Opp));
+                    if (e2.Equals(e1.Opp))
+                    {
+                        e0.Display("e0 ");
+                        e0.Opp.Display("e0'");
+                        e1.Display("e1 ");
+                        e1.Opp.Display("e1'");
+                        Console.WriteLine("e0 * e1 * e0' = e1'");
+                        e2.Display("r  ");
+                        Console.WriteLine();
+                        DetailGroup(e0, e1);
+                        return;
+                    }
+                }
+            }
+        }
 
         public static HashSet<Perm> Group(params Perm[] perms)
         {
@@ -310,7 +334,7 @@ namespace FiniteGroup
             foreach (var e0 in set)
             {
                 var v0 = ec[e0].ToString();
-                var l0 = set.Select(e1 => ec[e0.Op(e1)]).ToList();
+                var l0 = set.Select(e1 => ec[e1.Op(e0)]).ToList();
                 Console.WriteLine(MyFormat(v0, " ", l0));
             }
 
