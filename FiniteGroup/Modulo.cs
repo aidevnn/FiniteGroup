@@ -9,14 +9,14 @@ namespace FiniteGroup
         public static Modulo CreateModulo(int n, int m)
         {
             var m0 = new Modulo(n, m);
-            var m1 = new Modulo(n, 2 * n + (n - m));
+            var m1 = new Modulo(n, 2 * n - m);
             m0.Opp = m1;
             m1.Opp = m0;
             return m0;
         }
 
         public int N { get; private set; }
-        public int Sgn => 0;
+        public int Sgn => 1;
         public string SgnStr => "";
         public int Order { get; private set; }
         public Modulo Opp { get; private set; }
@@ -56,9 +56,6 @@ namespace FiniteGroup
             if (Order != other.Order)
                 return Order.CompareTo(other.Order);
 
-            if (Sgn != other.Sgn)
-                return Sgn.CompareTo(other.Sgn);
-
             return M.CompareTo(other.M);
         }
     }
@@ -82,6 +79,7 @@ namespace FiniteGroup
                 return new HashSet<Modulo>() { Modulo.CreateModulo(1, 0) };
 
             var hs = new HashSet<Modulo>(mods);
+            HashSet<(int, int)> prevOP = new HashSet<(int, int)>();
             int sz = 0;
             do
             {
@@ -90,6 +88,11 @@ namespace FiniteGroup
                 foreach (var e0 in lt)
                     foreach (var e1 in lt)
                     {
+                        var tp = (e0.GetHashCode(), e1.GetHashCode());
+                        if (prevOP.Contains(tp))
+                            continue;
+                        prevOP.Add(tp);
+
                         var e2 = e0.Op(e1);
                         hs.Add(e2);
                         hs.Add(e2.Opp);
@@ -104,6 +107,7 @@ namespace FiniteGroup
         {
             var set = Group(mods).ToList();
             set.Sort();
+            Console.WriteLine("|G| = {0} in Z/{1}Z", set.Count, mods[0].N);
             set.ForEach(p => p.Display());
             Console.WriteLine("#########");
             Console.WriteLine();
@@ -113,6 +117,7 @@ namespace FiniteGroup
         {
             var set = Group(mods).ToList();
             set.Sort();
+            Console.WriteLine("|G| = {0} in Z/{1}Z", set.Count, mods[0].N);
             TableGroup(set);
             Console.WriteLine("#########");
             Console.WriteLine();

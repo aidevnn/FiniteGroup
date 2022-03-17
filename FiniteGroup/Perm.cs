@@ -72,12 +72,27 @@ namespace FiniteGroup
             return CreatePerm(arr);
         }
 
+        static int GenHash(int n, int[] m)
+        {
+            var pow = 1;
+            var hash = 0;
+            for (int k = 1; k < m.Length; ++k)
+            {
+                hash += pow * m[k];
+                pow *= n;
+            }
+
+            return hash;
+        }
+
+
         int[] table;
         public int N => table.Length - 1;
         public int Sgn { get; private set; }
         public string SgnStr => Sgn == -1 ? "-" : "+";
         public int Order { get; private set; }
         public Perm Opp { get; private set; }
+        readonly int hashcode;
 
         public Perm(int n)
         {
@@ -85,6 +100,7 @@ namespace FiniteGroup
             Order = 1;
             Sgn = 1;
             Opp = this;
+            hashcode = GenHash(N, table);
         }
 
         private Perm(int[] t, int sgn, int ord)
@@ -92,18 +108,16 @@ namespace FiniteGroup
             table = t.ToArray();
             Sgn = sgn;
             Order = ord;
+            hashcode = GenHash(N, table);
         }
 
         public Perm Op(Perm p) => Op(table, p.table);
 
-        public bool Equals(Perm other) => table.Length == other.table.Length && table.SequenceEqual(other.table);
-        public override int GetHashCode() => 1;
+        public bool Equals(Perm other) => table.Length == other.table.Length && hashcode == other.hashcode;
+        public override int GetHashCode() => hashcode;
 
         public int CompareTo(Perm other)
         {
-            if (other.N != N)
-                throw new Exception();
-
             if (Order != other.Order)
                 return Order.CompareTo(other.Order);
 
@@ -175,6 +189,7 @@ namespace FiniteGroup
 
             var hs = new HashSet<Perm>(perms);
             int sz = 0;
+            HashSet<(int, int)> prevOP = new HashSet<(int, int)>();
             do
             {
                 sz = hs.Count;
@@ -182,6 +197,11 @@ namespace FiniteGroup
                 foreach (var e0 in lt)
                     foreach (var e1 in lt)
                     {
+                        var tp = (e0.GetHashCode(), e1.GetHashCode());
+                        if (prevOP.Contains(tp))
+                            continue;
+                        prevOP.Add(tp);
+
                         var e2 = e0.Op(e1);
                         hs.Add(e2);
                         hs.Add(e2.Opp);
@@ -196,6 +216,13 @@ namespace FiniteGroup
         {
             var set = Group(perms).ToList();
             set.Sort();
+            Console.WriteLine("|G| = {0} in S{1}", set.Count, perms[0].N);
+            if (set.Count > 1000)
+            {
+                Console.WriteLine("TOO BIG");
+                return;
+            }
+
             set.ForEach(p => p.Display());
             Console.WriteLine("#########");
             Console.WriteLine();
@@ -205,6 +232,13 @@ namespace FiniteGroup
         {
             var set = Group(perms).ToList();
             set.Sort();
+            Console.WriteLine("|G| = {0} in S{1}", set.Count, perms[0].N);
+            if (set.Count > 1000)
+            {
+                Console.WriteLine("TOO BIG");
+                return;
+            }
+
             TableGroup(set);
             Console.WriteLine("#########");
             Console.WriteLine();
@@ -216,11 +250,6 @@ namespace FiniteGroup
             set.Sort();
 
             Console.WriteLine("|G| = {0} in S{1}", set.Count, perms[0].N);
-            if (perms.Length > 7)
-            {
-                Console.WriteLine("TOO BIG");
-                return;
-            }
 
             var word = "@abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ".Take(set.Count).Select(c => $"{c}").ToList();
             if (set.Count > 50)
@@ -235,8 +264,10 @@ namespace FiniteGroup
             Console.WriteLine();
         }
 
+        public static void DisplayGroup(Sn sn) => DisplayGroup(Enumerable.Range(2, sn.N - 1).Select(a => sn.Tau(a)).ToArray());
         public static void DetailGroup(Sn sn) => DetailGroup(Enumerable.Range(2, sn.N - 1).Select(a => sn.Tau(a)).ToArray());
         public static void DetailSn(int n) => DetailGroup(new Sn(n));
+        public static void DisplaySn(int n) => DisplayGroup(new Sn(n));
 
         static void TableGroup(List<Perm> set)
         {

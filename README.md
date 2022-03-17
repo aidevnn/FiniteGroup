@@ -132,5 +132,142 @@ e = (5)<6>
 ```
 
 # Direct Product of Z/nZ
+Z/2Z isnt isomorphic to Z/4Z
 
-(In Progress)
+```
+ZxZ.DetailGroup(2, 2);
+|G| = 4 in Z/2Z x Z/2Z
+@ = (0 ,0)<1>
+a = (1 ,0)<2>
+b = (0 ,1)<2>
+c = (1 ,1)<2>
+
+ *|@ a b c
+--|--------
+ @|@ a b c
+ a|a @ c b
+ b|b c @ a
+ c|c b a @
+```
+
+And
+```
+ZxZ.DetailGroup(4);
+
+|G| = 4 in Z/4Z
+@ = (0)<1>
+a = (2)<2>
+b = (1)<4>
+c = (3)<4>
+
+ *|@ a b c
+--|--------
+ @|@ a b c
+ a|a @ c b
+ b|b c a @
+ c|c b @ a
+
+```
+
+Comparing Z/2Z x Z/2Z x Z/2Z with from Z/2Z x Z/4Z
+```
+ZxZ.DetailGroup(2, 2, 2);
+
+
+|G| = 8 in Z/2Z x Z/2Z x Z/2Z
+@ = (0 ,0 ,0)<1>
+a = (1 ,0 ,0)<2>
+b = (0 ,1 ,0)<2>
+c = (1 ,1 ,0)<2>
+d = (0 ,0 ,1)<2>
+e = (1 ,0 ,1)<2>
+f = (0 ,1 ,1)<2>
+g = (1 ,1 ,1)<2>
+
+ *|@ a b c d e f g
+--|----------------
+ @|@ a b c d e f g
+ a|a @ c b e d g f
+ b|b c @ a f g d e
+ c|c b a @ g f e d
+ d|d e f g @ a b c
+ e|e d g f a @ c b
+ f|f g d e b c @ a
+ g|g f e d c b a @
+```
+
+```
+ZxZ.DetailGroup(2, 4);
+
+|G| = 8 in Z/2Z x Z/4Z
+@ = (0 ,0)<1>
+a = (1 ,0)<2>
+b = (0 ,2)<2>
+c = (1 ,2)<2>
+d = (0 ,1)<4>
+e = (1 ,1)<4>
+f = (0 ,3)<4>
+g = (1 ,3)<4>
+
+ *|@ a b c d e f g
+--|----------------
+ @|@ a b c d e f g
+ a|a @ c b e d g f
+ b|b c @ a f g d e
+ c|c b a @ g f e d
+ d|d e f g b c @ a
+ e|e d g f c b a @
+ f|f g d e @ a b c
+ g|g f e d a @ c b
+
+```
+
+Comparing Z/12Z with Z/2Z x Z/6Z and Z/3Z x Z/4Z
+```
+ZxZ.DisplayGroup(2, 6);
+ZxZ.DisplayGroup(3, 4);
+ZxZ.DisplayGroup(12);
+            
+|G| = 12 in Z/2Z x Z/6Z
+m = (0 ,0)<1>
+m = (1 ,0)<2>
+m = (0 ,3)<2>
+m = (1 ,3)<2>
+m = (0 ,2)<3>
+m = (0 ,4)<3>
+m = (0 ,1)<6>
+m = (1 ,1)<6>
+m = (1 ,2)<6>
+m = (1 ,4)<6>
+m = (0 ,5)<6>
+m = (1 ,5)<6>
+
+|G| = 12 in Z/3Z x Z/4Z
+m = (0 ,0)<1>
+m = (0 ,2)<2>
+m = (1 ,0)<3>
+m = (2 ,0)<3>
+m = (0 ,1)<4>
+m = (0 ,3)<4>
+m = (1 ,2)<6>
+m = (2 ,2)<6>
+m = (1 ,1)<12>
+m = (2 ,1)<12>
+m = (1 ,3)<12>
+m = (2 ,3)<12>
+
+|G| = 12 in Z/12Z
+m = (0)<1>
+m = (6)<2>
+m = (4)<3>
+m = (8)<3>
+m = (3)<4>
+m = (9)<4>
+m = (2)<6>
+m = (10)<6>
+m = (1)<12>
+m = (5)<12>
+m = (7)<12>
+m = (11)<12>
+
+```
