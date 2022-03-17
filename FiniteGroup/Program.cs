@@ -80,10 +80,9 @@ namespace FiniteGroup
 
         public static void Main(string[] args)
         {
-            // Diedral D8
-            var n = 4;
-            var dn = new Sn(n + 2); // Diedral
-            Sn.DetailGroup(dn.PCycle(n), dn.Tau(n + 1, n + 2));
+
+            ZxZ.DisplayGroup(12);
+
         }
     }
 }
