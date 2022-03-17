@@ -107,9 +107,8 @@ namespace FiniteGroup
         {
             var set = Group(mods).ToList();
             set.Sort();
-            Console.WriteLine("|G| = {0} in Z/{1}Z", set.Count, mods[0].N);
-            set.ForEach(p => p.Display());
-            Console.WriteLine("#########");
+
+            DisplayGroup(set);
             Console.WriteLine();
         }
 
@@ -117,33 +116,50 @@ namespace FiniteGroup
         {
             var set = Group(mods).ToList();
             set.Sort();
-            Console.WriteLine("|G| = {0} in Z/{1}Z", set.Count, mods[0].N);
+
             TableGroup(set);
-            Console.WriteLine("#########");
             Console.WriteLine();
         }
 
         public static void DetailGroup(Zn zn) => DetailGroup(zn.Elt(1));
+        public static void DetailZn(int n) => DetailGroup(new Zn(n));
+        public static void DisplayGroup(Zn zn) => DisplayGroup(zn.Elt(1));
+        public static void DisplayZn(int n) => DisplayGroup(new Zn(n));
 
         public static void DetailGroup(params Modulo[] mods)
         {
             var set = Group(mods).ToList();
             set.Sort();
-            var word = "@abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ".Take(set.Count).ToList();
 
-            Console.WriteLine("|G| = {0} in Z/{1}Z", set.Count, mods[0].N);
-            for (int k = 0; k < set.Count; ++k)
-                set[k].Display(word[k].ToString());
-
-            Console.WriteLine();
-
+            DisplayGroup(set);
             TableGroup(set);
             Console.WriteLine("#########");
             Console.WriteLine();
         }
 
+        static void DisplayGroup(List<Modulo> set)
+        {
+            Console.WriteLine("|G| = {0} in Z/{1}Z", set.Count, set[0].N);
+
+            if (set.Count > 1000)
+            {
+                Console.WriteLine("TOO BIG");
+                return;
+            }
+
+            var word = "@abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ".Take(set.Count).Select(c => $"{c}").ToList();
+            if (set.Count > 50)
+                word = Enumerable.Range(1, set.Count).Select(a => $"E{a,2:0000}").ToList();
+            for (int k = 0; k < set.Count; ++k)
+                set[k].Display(word[k].ToString());
+
+            Console.WriteLine();
+        }
+
         static void TableGroup(List<Modulo> set)
         {
+            Console.WriteLine("|G| = {0} in Z/{1}Z", set.Count, set[0].N);
+
             if (set.Count > 50)
             {
                 Console.WriteLine("TOO BIG");

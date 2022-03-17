@@ -216,15 +216,8 @@ namespace FiniteGroup
         {
             var set = Group(perms).ToList();
             set.Sort();
-            Console.WriteLine("|G| = {0} in S{1}", set.Count, perms[0].N);
-            if (set.Count > 1000)
-            {
-                Console.WriteLine("TOO BIG");
-                return;
-            }
 
-            set.ForEach(p => p.Display());
-            Console.WriteLine("#########");
+            DisplayGroup(set);
             Console.WriteLine();
         }
 
@@ -232,15 +225,8 @@ namespace FiniteGroup
         {
             var set = Group(perms).ToList();
             set.Sort();
-            Console.WriteLine("|G| = {0} in S{1}", set.Count, perms[0].N);
-            if (set.Count > 1000)
-            {
-                Console.WriteLine("TOO BIG");
-                return;
-            }
 
             TableGroup(set);
-            Console.WriteLine("#########");
             Console.WriteLine();
         }
 
@@ -249,16 +235,7 @@ namespace FiniteGroup
             var set = Group(perms).ToList();
             set.Sort();
 
-            Console.WriteLine("|G| = {0} in S{1}", set.Count, perms[0].N);
-
-            var word = "@abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ".Take(set.Count).Select(c => $"{c}").ToList();
-            if (set.Count > 50)
-                word = Enumerable.Range(1, set.Count).Select(a => $"E{a,2:0000}").ToList();
-            for (int k = 0; k < set.Count; ++k)
-                set[k].Display(word[k].ToString());
-
-            Console.WriteLine();
-
+            DisplayGroup(set);
             TableGroup(set);
             Console.WriteLine("#########");
             Console.WriteLine();
@@ -269,8 +246,29 @@ namespace FiniteGroup
         public static void DetailSn(int n) => DetailGroup(new Sn(n));
         public static void DisplaySn(int n) => DisplayGroup(new Sn(n));
 
+        static void DisplayGroup(List<Perm> set)
+        {
+            Console.WriteLine("|G| = {0} in S{1}", set.Count, set[0].N);
+
+            if (set.Count > 1000)
+            {
+                Console.WriteLine("TOO BIG");
+                return;
+            }
+
+            var word = "@abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ".Take(set.Count).Select(c => $"{c}").ToList();
+            if (set.Count > 50)
+                word = Enumerable.Range(1, set.Count).Select(a => $"E{a,2:0000}").ToList();
+            for (int k = 0; k < set.Count; ++k)
+                set[k].Display(word[k].ToString());
+
+            Console.WriteLine();
+        }
+
         static void TableGroup(List<Perm> set)
         {
+            Console.WriteLine("|G| = {0} in S{1}", set.Count, set[0].N);
+
             if (set.Count > 50)
             {
                 Console.WriteLine("TOO BIG");

@@ -67,14 +67,16 @@ namespace FiniteGroup
             //ZxZ.DetailGroup(2, 4);
             //ZxZ.DetailGroup(4, 2);
 
-            ZxZ.DetailGroup(2, 2);
-            ZxZ.DetailGroup(4);
-            ZxZ.DetailGroup(2, 2, 2);
-            ZxZ.DetailGroup(2, 4);
+            //ZxZ.DetailGroup(2, 2);
+            //ZxZ.DetailGroup(4);
+            //ZxZ.DetailGroup(2, 2, 2);
+            //ZxZ.DetailGroup(2, 4);
 
-            ZxZ.DisplayGroup(2, 6);
-            ZxZ.DisplayGroup(3, 4);
-            ZxZ.DisplayGroup(12);
+            //ZxZ.DisplayGroup(2, 6);
+            //ZxZ.DisplayGroup(3, 4);
+            //ZxZ.DisplayGroup(12);
+
+            Sn.DisplaySn(5);
         }
     }
 }

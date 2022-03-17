@@ -126,8 +126,98 @@ namespace FiniteGroup
         public ModuloTuple Elt(params int[] m) => ModuloTuple.CreateModuloTuple(N, m);
         public ModuloTuple Canonic(int rank) => ModuloTuple.Canonic(N, rank);
 
+        public static HashSet<ModuloTuple> Group(params ModuloTuple[] mods)
+        {
+            var hs = new HashSet<ModuloTuple>(mods);
+            HashSet<(int, int)> prevOP = new HashSet<(int, int)>();
+            int sz = 0;
+            do
+            {
+                sz = hs.Count;
+                var lt = hs.ToHashSet();
+                foreach (var e0 in lt)
+                    foreach (var e1 in lt)
+                    {
+                        var tp = (e0.GetHashCode(), e1.GetHashCode());
+                        if (prevOP.Contains(tp))
+                            continue;
+                        prevOP.Add(tp);
+
+                        var e2 = e0.Op(e1);
+                        hs.Add(e2);
+                        hs.Add(e2.Opp);
+                    }
+
+            } while (hs.Count != sz);
+
+            return hs;
+        }
+
+        public static void DisplayGroup(params ModuloTuple[] mods)
+        {
+            var set = Group(mods).ToList();
+            set.Sort();
+
+            DisplayGroup(set);
+            Console.WriteLine();
+        }
+
+        public static void TableGroup(params ModuloTuple[] mods)
+        {
+            var set = Group(mods).ToList();
+            set.Sort();
+
+            TableGroup(set);
+            Console.WriteLine();
+        }
+
+        public static void DetailGroup(params ModuloTuple[] mods)
+        {
+            var set = Group(mods).ToList();
+            set.Sort();
+
+            DisplayGroup(set);
+            TableGroup(set);
+            Console.WriteLine("#########");
+            Console.WriteLine();
+        }
+
+        static ModuloTuple[] CanonicalGen(ZxZ z) => Enumerable.Range(0, z.N.Length).Select(rk => ModuloTuple.Canonic(z.N, rk)).ToArray();
+        public static void DisplayGroup(ZxZ z) => DisplayGroup(CanonicalGen(z));
+        public static void TableGroup(ZxZ z) => TableGroup(CanonicalGen(z));
+        public static void DetailGroup(ZxZ z) => DetailGroup(CanonicalGen(z));
+
+        public static void DisplayGroup(params int[] n) => DisplayGroup(new ZxZ(n));
+        public static void TableGroup(params int[] n) => TableGroup(new ZxZ(n));
+        public static void DetailGroup(params int[] n) => DetailGroup(new ZxZ(n));
+
+
+        static void DisplayGroup(List<ModuloTuple> set)
+        {
+            var gr = string.Join(" x ", set[0].N.Select(n => $"Z/{n}Z"));
+            Console.WriteLine("|G| = {0} in {1}", set.Count, gr);
+
+            if (set.Count > 1000)
+            {
+                Console.WriteLine("TOO BIG");
+                return;
+            }
+
+            var word = "@abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ".Take(set.Count).Select(c => $"{c}").ToList();
+            if (set.Count > 50)
+                word = Enumerable.Range(1, set.Count).Select(a => $"E{a,2:0000}").ToList();
+            for (int k = 0; k < set.Count; ++k)
+                set[k].Display(word[k].ToString());
+
+
+            Console.WriteLine();
+        }
+
         static void TableGroup(List<ModuloTuple> set)
         {
+            var gr = string.Join(" x ", set[0].N.Select(n => $"Z/{n}Z"));
+            Console.WriteLine("|G| = {0} in {1}", set.Count, gr);
+
             if (set.Count > 50)
             {
                 Console.WriteLine("TOO BIG");
@@ -161,80 +251,5 @@ namespace FiniteGroup
             Console.WriteLine();
         }
 
-        public static HashSet<ModuloTuple> Group(params ModuloTuple[] mods)
-        {
-            var hs = new HashSet<ModuloTuple>(mods);
-            HashSet<(int, int)> prevOP = new HashSet<(int, int)>();
-            int sz = 0;
-            do
-            {
-                sz = hs.Count;
-                var lt = hs.ToHashSet();
-                foreach (var e0 in lt)
-                    foreach (var e1 in lt)
-                    {
-                        var tp = (e0.GetHashCode(), e1.GetHashCode());
-                        if (prevOP.Contains(tp))
-                            continue;
-                        prevOP.Add(tp);
-
-                        var e2 = e0.Op(e1);
-                        hs.Add(e2);
-                        hs.Add(e2.Opp);
-                    }
-
-            } while (hs.Count != sz);
-
-            return hs;
-        }
-
-        public static void TableGroup(params ModuloTuple[] mods)
-        {
-            var set = Group(mods).ToList();
-            set.Sort();
-            var gr = string.Join(" x ", mods[0].N.Select(n => $"Z/{n}Z"));
-            Console.WriteLine("|G| = {0} in {1}", set.Count, gr);
-            TableGroup(set);
-            Console.WriteLine("#########");
-            Console.WriteLine();
-        }
-
-        public static void DisplayGroup(params ModuloTuple[] mods)
-        {
-            var set = Group(mods).ToList();
-            set.Sort();
-            var gr = string.Join(" x ", mods[0].N.Select(n => $"Z/{n}Z"));
-            Console.WriteLine("|G| = {0} in {1}", set.Count, gr);
-            set.ForEach(p => p.Display());
-            Console.WriteLine("#########");
-            Console.WriteLine();
-        }
-
-        public static void DetailGroup(params ModuloTuple[] mods)
-        {
-            var set = Group(mods).ToList();
-            set.Sort();
-            var word = "@abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ".Take(set.Count).ToList();
-
-            var gr = string.Join(" x ", mods[0].N.Select(n => $"Z/{n}Z"));
-            Console.WriteLine("|G| = {0} in {1}", set.Count, gr);
-            for (int k = 0; k < set.Count; ++k)
-                set[k].Display(word[k].ToString());
-
-            Console.WriteLine();
-
-            TableGroup(set);
-            Console.WriteLine("#########");
-            Console.WriteLine();
-        }
-
-        static ModuloTuple[] CanonicalGen(ZxZ z) => Enumerable.Range(0, z.N.Length).Select(rk => ModuloTuple.Canonic(z.N, rk)).ToArray();
-        public static void DisplayGroup(ZxZ z) => DisplayGroup(CanonicalGen(z));
-        public static void TableGroup(ZxZ z) => TableGroup(CanonicalGen(z));
-        public static void DetailGroup(ZxZ z) => DetailGroup(CanonicalGen(z));
-
-        public static void DisplayGroup(params int[] n) => DisplayGroup(new ZxZ(n));
-        public static void TableGroup(params int[] n) => TableGroup(new ZxZ(n));
-        public static void DetailGroup(params int[] n) => DetailGroup(new ZxZ(n));
     }
 }
