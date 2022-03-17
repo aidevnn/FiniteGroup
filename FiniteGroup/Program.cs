@@ -1,4 +1,6 @@
 ﻿using System;
+using System.Collections.Generic;
+using System.Linq;
 
 namespace FiniteGroup
 {
@@ -51,36 +53,37 @@ namespace FiniteGroup
             Zn.DetailGroup(new Zn(12));
         }
 
+        static void SamplesZxZ()
+        {
+            var z2xz3 = new ZxZ(2, 3);
+            z2xz3.Elt(1, 0).Display();
+            z2xz3.Elt(1, 2).Display();
+            z2xz3.Canonic(0).Display();
+            z2xz3.Canonic(1).Display();
+            ZxZ.DetailGroup(z2xz3.Canonic(0));
+            ZxZ.DetailGroup(z2xz3.Canonic(1));
+            ZxZ.DetailGroup(z2xz3.Canonic(0), z2xz3.Canonic(1));
+
+            ZxZ.DetailGroup(2, 2, 2);
+            ZxZ.DetailGroup(2, 4);
+            ZxZ.DetailGroup(4, 2);
+
+            ZxZ.DetailGroup(2, 2);
+            ZxZ.DetailGroup(4);
+            ZxZ.DetailGroup(2, 2, 2);
+            ZxZ.DetailGroup(2, 4);
+
+            ZxZ.DisplayGroup(2, 6);
+            ZxZ.DisplayGroup(3, 4);
+            ZxZ.DisplayGroup(12);
+        }
+
         public static void Main(string[] args)
         {
-
-            //var z2xz3 = new ZxZ(2, 3);
-            //z2xz3.Elt(1, 0).Display();
-            //z2xz3.Elt(1, 2).Display();
-            //z2xz3.Canonic(0).Display();
-            //z2xz3.Canonic(1).Display();
-            //ZxZ.DetailGroup(z2xz3.Canonic(0));
-            //ZxZ.DetailGroup(z2xz3.Canonic(1));
-            //ZxZ.DetailGroup(z2xz3.Canonic(0), z2xz3.Canonic(1));
-
-            //ZxZ.DetailGroup(2, 2, 2);
-            //ZxZ.DetailGroup(2, 4);
-            //ZxZ.DetailGroup(4, 2);
-
-            //ZxZ.DetailGroup(2, 2);
-            //ZxZ.DetailGroup(4);
-            //ZxZ.DetailGroup(2, 2, 2);
-            //ZxZ.DetailGroup(2, 4);
-
-            //ZxZ.DisplayGroup(2, 6);
-            //ZxZ.DisplayGroup(3, 4);
-            //ZxZ.DisplayGroup(12);
-
-            //Sn.DisplaySn(5);
-
-            Sn.DetailSn(3);
-            Zn.DetailZn(6);
-            ZxZ.DetailZxZ(3, 3);
+            // Diedral D8
+            var n = 4;
+            var dn = new Sn(n + 2); // Diedral
+            Sn.DetailGroup(dn.PCycle(n), dn.Tau(n + 1, n + 2));
         }
     }
 }

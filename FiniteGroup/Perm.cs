@@ -28,9 +28,10 @@ namespace FiniteGroup
             int[] arr0 = Enumerable.Range(0, arr.Length).ToArray();
             int[] arr1 = new int[arr.Length];
 
-            int k = 1;
-            for(; k < arr.Length; ++k)
+            int order = 0;
+            while(true)
             {
+                ++order;
                 Compose(arr, arr0, arr1);
                 if (!IsIdentity(arr1))
                     arr1.CopyTo(arr0, 0);
@@ -38,26 +39,24 @@ namespace FiniteGroup
                     break;
             }
 
-            return (k, arr0);
+            return (order, arr0);
         }
 
         static int ComputeSign(int[] arr)
         {
-            int Sign = 1;
+            int sgn = 1;
             for (int i = 1; i < arr.Length - 1; ++i)
                 for (int j = i + 1; j < arr.Length; ++j)
                     if (arr[i] > arr[j])
-                        Sign *= -1;
+                        sgn *= -1;
 
-            return Sign;
+            return sgn;
         }
 
         public static Perm CreatePerm(int[] table0)
         {
             int sgn = ComputeSign(table0);
-            var v = ComputeOrder(table0);
-            var ord = v.Item1;
-            var table1 = v.Item2;
+            var (ord, table1) = ComputeOrder(table0);
             var p0 = new Perm(table0, sgn, ord);
             var p1 = new Perm(table1, sgn, ord);
             p0.Opp = p1;
@@ -241,12 +240,20 @@ namespace FiniteGroup
             Console.WriteLine();
         }
 
-        public static void DisplayGroup(Sn sn) => DisplayGroup(Enumerable.Range(2, sn.N - 1).Select(a => sn.Tau(a)).ToArray());
-        public static void TableGroup(Sn sn) => TableGroup(Enumerable.Range(2, sn.N - 1).Select(a => sn.Tau(a)).ToArray());
-        public static void DetailGroup(Sn sn) => DetailGroup(Enumerable.Range(2, sn.N - 1).Select(a => sn.Tau(a)).ToArray());
+        public static Perm[] GroupSn(Sn sn) => Group(Enumerable.Range(2, sn.N - 1).Select(a => sn.Tau(a)).ToArray()).ToArray();
+        public static Perm[] GroupSn(int n) => GroupSn(new Sn(n));
+        public static Perm[] GroupAn(int n) => GroupSn(n).Where(e => e.Sgn == 1).ToArray();
+
+        public static void DisplayGroup(Sn sn) => DisplayGroup(GroupSn(sn));
+        public static void TableGroup(Sn sn) => TableGroup(GroupSn(sn));
+        public static void DetailGroup(Sn sn) => DetailGroup(GroupSn(sn));
         public static void DetailSn(int n) => DetailGroup(new Sn(n));
         public static void TableSn(int n) => TableGroup(new Sn(n));
         public static void DisplaySn(int n) => DisplayGroup(new Sn(n));
+
+        public static void DisplayAn(int n) => DisplayGroup(GroupAn(n));
+        public static void TableAn(int n) => TableGroup(GroupAn(n));
+        public static void DetailAn(int n) => DetailGroup(GroupAn(n));
 
         static List<string> GenLetters(int n)
         {
