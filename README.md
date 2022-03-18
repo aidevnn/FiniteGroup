@@ -290,7 +290,7 @@ k = (11)[12]
 
 ```
 
-# Diedral Dn generations
+# Dihedral Dn generations
 
 ```
 Sn.Dihedral(4);
