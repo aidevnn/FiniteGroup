@@ -80,8 +80,7 @@ namespace FiniteGroup
 
         public static void Main(string[] args)
         {
-
-            Sn.Dihedral(4);
+            Sn.Dihedral(6);
         }
     }
 }
