@@ -137,15 +137,14 @@ namespace FiniteGroup
             {
                 foreach (var e1 in sn.Where(a => a.Order == n))
                 {
-                    var e2 = e0.Op(e1);
+                    var e2 = e1.Op(e0);
                     var id0 = e2.Op(e2);
                     if (id0.Equals(id))
                     {
+                        Console.WriteLine("(e0 * e1) * (e0 * e1) = id");
                         e0.Display("e0 ");
-                        e0.Opp.Display("e0'");
                         e1.Display("e1 ");
-                        e1.Opp.Display("e1'");
-                        Console.WriteLine("e0 * e1 * e0' = e1'");
+                        Console.WriteLine("(e0 * e1)");
                         e2.Display("   ");
                         Console.WriteLine();
                         DetailGroup(e0, e1);
