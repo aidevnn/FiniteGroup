@@ -39,7 +39,7 @@ namespace FiniteGroup
 
         public static void Main(string[] args)
         {
-            Sn.Dihedral(6);
+            Sn.Dihedral(8);
         }
     }
 }

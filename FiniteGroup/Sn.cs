@@ -84,6 +84,22 @@ namespace FiniteGroup
             return new Permutation(this, cache0, hash);
         }
 
+        public Permutation Array2(params int[] arr)
+        {
+            if (arr.Any(c0 => c0 < 0 || c0 > N))
+                return Identity;
+
+            if (arr.Distinct().Count() != N + 1)
+                return Identity;
+
+            arr.CopyTo(cache0, 0);
+            int hash = Helpers.GenHash(N, cache0);
+            if (FSetContains(hash))
+                return (Permutation)GetElement(hash);
+
+            return new Permutation(this, cache0, hash);
+        }
+
         public Permutation Cycle(params int[] cycle)
         {
             if (cycle.Any(c0 => c0 < 0 || c0 > N))
@@ -119,7 +135,11 @@ namespace FiniteGroup
         public static void Dihedral(int n)
         {
             var sn = new Sn(n);
-            var gr = sn.Group(sn.AllTransposition);
+            var perms = Helpers.AllPermutation(n);
+            var gr = new SortedSet<Permutation>();
+            foreach (var arr in perms)
+                gr.Add(sn.Array2(arr));
+
             foreach (var e0 in gr.Where(a => a.Order == 2))
             {
                 foreach (var e1 in gr.Where(a => a.Order == n))
@@ -141,6 +161,5 @@ namespace FiniteGroup
                 }
             }
         }
-
     }
 }

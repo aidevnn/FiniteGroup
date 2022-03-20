@@ -292,8 +292,8 @@ k = (11)[12]
 Sn.Dihedral(4);
 
 (e0 * e1) * (e0 * e1) = id
-e0 = ( 2  1  3  4)[2-]
-e1 = ( 4  3  1  2)[4-]
+e0 = ( 1  2  4  3)[2-]
+e1 = ( 3  4  2  1)[4-]
 e0 * e1
    = ( 4  3  2  1)[2+]
 
@@ -319,45 +319,47 @@ g = ( 4  3  1  2)[4-]
  f|f e d g a b c @
  g|g d e f b a @ c
 
+
 ```
 And D6 
 ```
 Sn.Dihedral(6);
 
 (e0 * e1) * (e0 * e1) = id
-e0 = ( 2  1  3  4  5  6)[2-]
-e1 = ( 5  1  4  3  2  6)[6-]
+e0 = ( 1  2  3  4  6  5)[2-]
+e1 = ( 1  3  2  5  6  4)[6-]
 e0 * e1
-   = ( 5  2  4  3  1  6)[2+]
+   = ( 1  3  2  6  5  4)[2+]
 
 |G| = 12 in S6
 @ = ( 1  2  3  4  5  6)[1+]
-a = ( 1  2  4  3  5  6)[2-]
-b = ( 1  5  3  4  2  6)[2-]
-c = ( 1  5  4  3  2  6)[2+]
-d = ( 2  1  3  4  5  6)[2-]
-e = ( 2  1  4  3  5  6)[2+]
-f = ( 5  2  3  4  1  6)[2-]
-g = ( 5  2  4  3  1  6)[2+]
-h = ( 2  5  3  4  1  6)[3+]
-i = ( 5  1  3  4  2  6)[3+]
-j = ( 2  5  4  3  1  6)[6-]
-k = ( 5  1  4  3  2  6)[6-]
+a = ( 1  2  3  4  6  5)[2-]
+b = ( 1  2  3  5  4  6)[2-]
+c = ( 1  2  3  6  5  4)[2-]
+d = ( 1  3  2  4  5  6)[2-]
+e = ( 1  3  2  4  6  5)[2+]
+f = ( 1  3  2  5  4  6)[2+]
+g = ( 1  3  2  6  5  4)[2+]
+h = ( 1  2  3  5  6  4)[3+]
+i = ( 1  2  3  6  4  5)[3+]
+j = ( 1  3  2  5  6  4)[6-]
+k = ( 1  3  2  6  4  5)[6-]
 
 |G| = 12 in S6
  *|@ a b c d e f g h i j k
 --|------------------------
  @|@ a b c d e f g h i j k
- a|a @ c b e d g f j k h i
- b|b c @ a h j i k d f e g
- c|c b a @ j h k i e g d f
- d|d e i k @ a h j f b g c
- e|e d k i a @ j h g c f b
- f|f g h j i k @ a b d c e
- g|g f j h k i a @ c e b d
- h|h j f g b c d e i @ k a
- i|i k d e f g b c @ h a j
- j|j h g f c b e d k a i @
- k|k i e d g f c b a j @ h
+ a|a @ h i e d j k b c f g
+ b|b i @ h f k d j c a g e
+ c|c h i @ g j k d a b e f
+ d|d e f g @ a b c j k h i
+ e|e d j k a @ h i f g b c
+ f|f k d j b i @ h g e c a
+ g|g j k d c h i @ e f a b
+ h|h c a b j g e f i @ k d
+ i|i b c a k f g e @ h d j
+ j|j g e f h c a b k d i @
+ k|k f g e i b c a d j @ h
+
 
 ```
