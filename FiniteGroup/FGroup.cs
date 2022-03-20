@@ -203,7 +203,7 @@ namespace FiniteGroup
 
         static void TableGroup(FGroup<T> gr, List<T> set)
         {
-            Console.WriteLine(set[0].FSet.Fmt, set.Count);
+            Console.WriteLine(gr.Fmt, set.Count);
 
             if (set.Count > 50)
             {
