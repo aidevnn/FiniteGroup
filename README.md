@@ -54,14 +54,14 @@ e = ( 3  1  2  4)[3+]
 
 ```
 
-## Now try disjunct 3-cycle and transposition.
+## Disjunct 3-cycle and transposition.
 
 ```
 var s5 = new Sn(5);
 Sn.DetailSn(s5.PCycle(3), s5.Tau(4, 5));
 ```
 
-and you will obtain a commutative group
+will produce a commutative group
 
 ```
 |G| = 6 in S5
