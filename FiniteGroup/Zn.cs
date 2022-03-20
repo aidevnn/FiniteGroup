@@ -2,78 +2,93 @@
 using System.Collections.Generic;
 using System.Linq;
 
-namespace FiniteGroup 
+namespace FiniteGroup
 {
-    public class Modulo : AElt
+    public class Modulo : GElt, IComparable<Modulo>
     {
-        public static Modulo CreateModulo(Zn zn, int m)
+        public Modulo(Zn zn) : base(0)
         {
-            var m0 = new Modulo(zn, m);
-            var m1 = new Modulo(zn, 2 *zn.N - m);
-            m0.Opp = m1;
-            m1.Opp = m0;
-            return m0;
-        }
-
-        private Modulo(Zn zn, int m) : base(m % zn.N)
-        {
-            Group = zn;
+            FSet = zn;
+            table = new int[zn.Dims.Length];
             Sgn = 1;
-            table = new int[] { m % zn.N };
-
-            int sum = 0;
-            while (true)
-            {
-                ++Order;
-                sum = (sum + m) % zn.N;
-                if (sum == 0)
-                    break;
-            }
         }
+
+        public Modulo(Zn zn, int[] arr, int hash) : base(hash)
+        {
+            FSet = zn;
+            table = arr.ToArray();
+            Sgn = 1;
+            zn.AddElt(this);
+        }
+
+        public Zn Zn => (Zn)FSet;
 
         public override string OrderStr => $"{Order}";
+        public override string TableStr => string.Join(", ", table.Select(a => $"{a,2}"));
 
-        public override string TableStr => $"{table[0],2}";
-
-        public override AElt Op(AElt elt)
-        {
-            if (!Group.Equals(elt.Group))
-                return CreateModulo((Zn)Group, 0);
-
-            var m0 = table[0];
-            var m1 = ((Modulo)elt).table[0];
-            return CreateModulo((Zn)Group, m0 + m1);
-        }
+        public int CompareTo(Modulo other) => base.CompareTo(other);
     }
 
-    public class Zn : AGroup
+    public class Zn : FGroup<Modulo>
     {
-        public int N { get; private set; }
-        public Zn(int n) : base(n)
+        public int[] Dims { get; private set; }
+        private readonly Modulo identity;
+        public Zn(params int[] dims) : base(dims)
         {
-            if (n < 2)
-                n = 2;
-
-            N = n;
+            Dims = dims.ToArray();
             FmtElt = "({1})[{0}]";
-            FmtGroup = "|G| = {0} in " + $"Z/{n}Z";
+            var gr = string.Join(" x ", Dims.Select(n => $"Z/{n}Z"));
+            Fmt = "|G| = {0} in " + gr;
+            cache0 = new int[Dims.Length];
+            cache1 = new int[Dims.Length];
+            cache2 = new int[Dims.Length];
+            identity = new Modulo(this);
+            TableOpAdd(identity.HashCode, identity.HashCode, identity.HashCode);
+            AddElt(identity);
         }
 
-        public Modulo Elt(int m) => Modulo.CreateModulo(this, m);
-        public Modulo Zero => Modulo.CreateModulo(this, 0);
-        public Modulo One => Modulo.CreateModulo(this, 1);
-        public List<Modulo> AllClasses() => Group(One).Cast<Modulo>().ToList();
+        public override Modulo Identity => identity;
 
-        public static void DisplayGroup(params Modulo[] modulos) => AGroup.DisplayGroup(modulos);
-        public static void TableGroup(params Modulo[] modulos) => AGroup.TableGroup(modulos);
-        public static void DetailGroup(params Modulo[] modulos) => AGroup.DetailGroup(modulos);
+        protected override Modulo DefineOp(Modulo e0, Modulo e1)
+        {
+            if (e0.FSet.HashCode != e1.FSet.HashCode)
+                return Identity;
 
-        public static void DisplayZn(Zn zn) => DisplayGroup(zn.One);
-        public static void TableZn(Zn zn) => TableGroup(zn.One);
-        public static void DetailZn(Zn zn) => DetailGroup(zn.One);
+            e0.CopyTo(cache0);
+            e1.CopyTo(cache1);
+            Helpers.AddMod(Dims, cache0, cache1, cache2);
+            var hash = Helpers.GenHash(Dims, cache2);
+            if (FSetContains(hash))
+                return (Modulo)GetElement(hash);
 
-        public static void DisplayZn(int n) => DisplayZn(new Zn(n));
-        public static void TableZn(int n) => TableZn(new Zn(n));
-        public static void DetailZn(int n) => DetailZn(new Zn(n));
+            return new Modulo(this, cache2, hash);
+        }
+
+        public Modulo Canonical(int rank) => Elt(Helpers.Canonic(Dims.Length, rank));
+        public Modulo[] CanonicalBase => Enumerable.Range(0, Dims.Length).Select(Canonical).ToArray();
+
+        public Modulo Elt(params int[] arr)
+        {
+            ClearCaches();
+            arr.CopyTo(cache0, 0);
+            Helpers.AddMod(Dims, cache0, cache1, cache2);
+            var hash = Helpers.GenHash(Dims, cache2);
+            if (FSetContains(hash))
+                return (Modulo)GetElement(hash);
+
+            return new Modulo(this, cache2, hash);
+        }
+
+        public static void DisplayZn(params Modulo[] modulos) => modulos[0].Zn.DisplayGroup(modulos);
+        public static void TableZn(params Modulo[] modulos) => modulos[0].Zn.TableGroup(modulos);
+        public static void DetailZn(params Modulo[] modulos) => modulos[0].Zn.DetailGroup(modulos);
+
+        public static void DisplayZn(Zn zn) => DisplayZn(zn.CanonicalBase);
+        public static void TableZn(Zn zn) => TableZn(zn.CanonicalBase);
+        public static void DetailZn(Zn zn) => DetailZn(zn.CanonicalBase);
+
+        public static void DisplayZn(params int[] dims) => DisplayZn(new Zn(dims));
+        public static void TableZn(params int[] dims) => TableZn(new Zn(dims));
+        public static void DetailZn(params int[] dims) => DetailZn(new Zn(dims));
     }
 }

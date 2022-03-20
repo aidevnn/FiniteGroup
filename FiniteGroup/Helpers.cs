@@ -4,7 +4,7 @@ using System.Linq;
 
 namespace FiniteGroup
 {
-    public static class ArrayOps
+    public static class Helpers
     {
         public static int GenHash(int[] n, int[] m)
         {
@@ -13,6 +13,19 @@ namespace FiniteGroup
             for (int k = 0; k < m.Length; ++k)
             {
                 hash += pow * m[k];
+                pow *= n[k];
+            }
+
+            return hash;
+        }
+
+        public static int GenHash(int[] n, int m)
+        {
+            var pow = 1;
+            var hash = 0;
+            for (int k = 0; k < n.Length; ++k)
+            {
+                hash += pow * m;
                 pow *= n[k];
             }
 
@@ -45,29 +58,26 @@ namespace FiniteGroup
             return true;
         }
 
-        public static void Compose(int[] arr0, int[] arr1, int[] arr2)
+        public static void ComposePermutation(int[] arr0, int[] arr1, int[] arr2)
         {
             for (int k = 0; k < arr2.Length; ++k)
                 arr2[k] = arr0[arr1[k]];
         }
 
-        public static (int, int[]) ComputeOrder(int[] arr)
+        public static int ComputeOrder(int[] arr0, int[] arr1, int[] arr2)
         {
-            int[] arr0 = Enumerable.Range(0, arr.Length).ToArray();
-            int[] arr1 = new int[arr.Length];
-
             int order = 0;
             while (true)
             {
                 ++order;
-                Compose(arr, arr0, arr1);
+                ComposePermutation(arr0, arr1, arr2);
                 if (!IsIdentity(arr1))
-                    arr1.CopyTo(arr0, 0);
+                    arr2.CopyTo(arr1, 0);
                 else
                     break;
             }
 
-            return (order, arr0);
+            return order;
         }
 
         public static int ComputeSign(int[] arr)
@@ -81,10 +91,10 @@ namespace FiniteGroup
             return sgn;
         }
 
-        public static void AddMod(int[] n, int[] m0, int[] m1)
+        public static void AddMod(int[] n, int[] m0, int[] m1, int[] m2)
         {
             for (int k = 0; k < m0.Length; ++k)
-                m1[k] = (m0[k] + m1[k]) % n[k];
+                m2[k] = (m0[k] + m1[k]) % n[k];
         }
 
         public static void OppMod(int[] n, int[] m0, int[] m1)

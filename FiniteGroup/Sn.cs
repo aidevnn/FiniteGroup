@@ -4,58 +4,38 @@ using System.Linq;
 
 namespace FiniteGroup
 {
-    public class Permutation : AElt
+    public class Permutation : GElt, IComparable<Permutation>
     {
-        public static Permutation Id(Sn sn)
+        static int HashId(int n) => Helpers.GenHash(n, Enumerable.Range(0, n + 1).ToArray());
+
+        public int CompareTo(Permutation other) => base.CompareTo(other);
+
+        public Permutation(Sn sn) : base(HashId(sn.N))
         {
-            int sgn = 1, ord = 1;
-            int[] table = Enumerable.Range(0, sn.N + 1).ToArray();
-            var p0 = new Permutation(sn, table, sgn, ord);
-            p0.Opp = p0;
-            return p0;
+            FSet = sn;
+            table = Enumerable.Range(0, sn.N + 1).ToArray();
+            Sgn = 1;
         }
 
-        public static Permutation Create(Sn sn, int[] table0)
+        public Permutation(Sn sn, int[] arr, int hash) : base(hash)
         {
-            int sgn = ArrayOps.ComputeSign(table0);
-            var (ord, table1) = ArrayOps.ComputeOrder(table0);
-            var p0 = new Permutation(sn, table0, sgn, ord);
-            var p1 = new Permutation(sn, table1, sgn, ord);
-            p0.Opp = p1;
-            p1.Opp = p0;
-            return p0;
-        }
-
-        static Permutation Op(Sn sn, int[] arr1, int[] arr2)
-        {
-            var arr = new int[arr1.Length];
-            ArrayOps.Compose(arr1, arr2, arr);
-            return Create(sn, arr);
-        }
-
-        private Permutation(Sn sn, int[] arr, int sgn, int ord) : base(sn.N, arr) 
-        {
-            Group = sn;
+            FSet = sn;
             table = arr.ToArray();
-            Order = ord;
-            Sgn = sgn;
+            Sgn = Helpers.ComputeSign(table);
+            sn.AddElt(this);
         }
+
+        public Sn Sn => (Sn)FSet;
 
         public override string OrderStr => Sgn == 1 ? $"{Order}+" : $"{Order}-";
         public override string TableStr => string.Join(" ", table.Skip(1).Select(a => $"{a,2}"));
-
-        public override AElt Op(AElt elt)
-        {
-            if (!Group.Equals(elt.Group))
-                return Id((Sn)Group);
-
-            return Op((Sn)Group, table, ((Permutation)elt).table);
-        }
     }
 
-    public class Sn : AGroup
+    public class Sn : FGroup<Permutation>
     {
         public int N { get; private set; }
+        private readonly Permutation identity;
+
         public Sn(int n) : base(n)
         {
             if (n < 1)
@@ -63,95 +43,104 @@ namespace FiniteGroup
 
             N = n;
             FmtElt = "({1})[{0}]";
-            FmtGroup = "|G| = {0} in " + $"S{n}";
+            Fmt = "|G| = {0} in " + $"S{n}";
+            cache0 = new int[N + 1];
+            cache1 = new int[N + 1];
+            cache2 = new int[N + 1];
+            identity = new Permutation(this);
+            TableOpAdd(identity.HashCode, identity.HashCode, identity.HashCode);
+            AddElt(identity);
         }
 
-        public Permutation Table(params int[] arr)
+        public override Permutation Identity => identity;
+        protected override Permutation DefineOp(Permutation e0, Permutation e1)
+        {
+            if (e0.FSet.HashCode != e1.FSet.HashCode)
+                return Identity;
+
+            e0.CopyTo(cache0);
+            e1.CopyTo(cache1);
+            Helpers.ComposePermutation(cache0, cache1, cache2);
+            var hash = Helpers.GenHash(N, cache2);
+            if (FSetContains(hash))
+                return (Permutation)GetElement(hash);
+
+            return new Permutation(this, cache2, hash);
+        }
+
+        public Permutation Array(params int[] arr)
         {
             if (arr.Any(c0 => c0 < 0 || c0 > N))
-                return Permutation.Id(this);
+                return Identity;
 
             if (arr.Distinct().Count() != N)
-                return Permutation.Id(this);
+                return Identity;
 
-            var arr0 = new int[N + 1];
-            arr.CopyTo(arr0, 1);
-            return Permutation.Create(this, arr0);
+            arr.CopyTo(cache0, 1);
+            int hash = Helpers.GenHash(N, cache0);
+            if (FSetContains(hash))
+                return (Permutation)GetElement(hash);
+
+            return new Permutation(this, cache0, hash);
         }
 
         public Permutation Cycle(params int[] cycle)
         {
             if (cycle.Any(c0 => c0 < 0 || c0 > N))
-                return Permutation.Id(this);
+                return Identity;
 
             if (cycle.Distinct().Count() != cycle.Count())
-                return Permutation.Id(this);
+                return Identity;
 
-            var arr = Enumerable.Range(0, N + 1).ToArray();
-            var c = arr[cycle[0]];
+            Identity.CopyTo(cache0);
+            var c = cache0[cycle[0]];
             for (int k = 0; k < cycle.Length - 1; ++k)
-                arr[cycle[k]] = arr[cycle[k + 1]];
+                cache0[cycle[k]] = cache0[cycle[k + 1]];
 
-            arr[cycle[cycle.Length - 1]] = c;
-            return Permutation.Create(this, arr);
+            cache0[cycle[cycle.Length - 1]] = c;
+            var hash = Helpers.GenHash(N, cache0);
+            if (FSetContains(hash))
+                return (Permutation)GetElement(hash);
+
+            return new Permutation(this, cache0, hash);
         }
 
-        public Permutation Id => Permutation.Id(this);
         public Permutation Tau(int a) => Cycle(1, a);
         public Permutation Tau(int a, int b) => Cycle(a, b);
         public Permutation RCycle(int start, int count) => Cycle(Enumerable.Range(start, count).ToArray());
         public Permutation PCycle(int count) => RCycle(1, count);
 
-        public List<Permutation> AllTransposition() => Enumerable.Range(1, N - 1).Select(a => Tau(1, a)).ToList();
-        public List<Permutation> AllPermutations()
-        {
-            var arrays = ArrayOps.AllPermutation(N);
-            List<Permutation> set = new List<Permutation>();
-            foreach (var arr in arrays)
-                set.Add(Permutation.Create(this, arr));
+        public Permutation[] AllTransposition => Enumerable.Range(2, N - 1).Select(a => Tau(1, a)).ToArray();
 
-            set.Sort();
-            return set;
-        }
-
-        public static List<Permutation> AllTranspositionSn(int n) => new Sn(n).AllTransposition();
-        public static List<Permutation> AllPermSn(int n) => new Sn(n).AllPermutations();
-
-        public static void DisplayGroup(params Permutation[] permutations) => AGroup.DisplayGroup(permutations);
-        public static void TableGroup(params Permutation[] permutations) => AGroup.TableGroup(permutations);
-        public static void DetailGroup(params Permutation[] permutations) => AGroup.DetailGroup(permutations);
-
-        public static void DisplaySn(Sn sn) => DisplayGroup(sn.AllPermutations().ToArray());
-        public static void TableSn(Sn sn) => TableGroup(sn.AllPermutations().ToArray());
-        public static void DetailSn(Sn sn) => DetailGroup(sn.AllPermutations().ToArray());
-
-        public static void DisplaySn(int n) => DisplaySn(new Sn(n));
-        public static void TableSn(int n) => TableSn(new Sn(n));
-        public static void DetailSn(int n) => DetailSn(new Sn(n));
+        public static void DisplaySn(params Permutation[] permutations) => permutations[0].Sn.DisplayGroup(permutations);
+        public static void TableSn(params Permutation[] permutations) => permutations[0].Sn.TableGroup(permutations);
+        public static void DetailSn(params Permutation[] permutations) => permutations[0].Sn.DetailGroup(permutations);
 
         public static void Dihedral(int n)
         {
-            var sn = AllPermSn(n);
-            var id = ((Sn)sn[0].Group).Id;
-            foreach (var e0 in sn.Where(a => a.Order == 2))
+            var sn = new Sn(n);
+            var gr = sn.Group(sn.AllTransposition);
+            foreach (var e0 in gr.Where(a => a.Order == 2))
             {
-                foreach (var e1 in sn.Where(a => a.Order == n))
+                foreach (var e1 in gr.Where(a => a.Order == n))
                 {
-                    var e2 = e1.Op(e0);
-                    var id0 = e2.Op(e2);
-                    if (id0.Equals(id))
+                    var e2 = sn.Op(e0, e1);
+                    var e3 = sn.Op(e2, e2);
+                    if (e3.HashCode == sn.Identity.HashCode)
                     {
                         Console.WriteLine("(e0 * e1) * (e0 * e1) = id");
-                        e0.Display("e0 ");
-                        e1.Display("e1 ");
-                        Console.WriteLine("(e0 * e1)");
-                        e2.Display("   ");
+                        e0.Display("e0");
+                        e1.Display("e1");
+                        Console.WriteLine("e0 * e1");
+                        e2.Display("  ");
                         Console.WriteLine();
-                        DetailGroup(e0, e1);
+
+                        sn.DetailGroup(e0, e1);
                         return;
                     }
                 }
             }
         }
+
     }
 }
