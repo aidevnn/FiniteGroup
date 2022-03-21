@@ -30,22 +30,22 @@ namespace FiniteGroup
             var sn = new Sn(n);
             sn.Finalized();
 
-            foreach (var e0 in sn.OfOrder(2).Where(Convexity))
+            foreach (var s in sn.OfOrder(2).Where(Convexity))
             {
-                foreach (var e1 in sn.OfOrder(n).Where(Convexity))
+                foreach (var r in sn.OfOrder(n).Where(Convexity))
                 {
-                    var e2 = sn.Op(e0, e1);
-                    var e3 = sn.Op(e2, e2);
-                    if (e3.HashCode == sn.Identity.HashCode)
+                    var sr = sn.Op(s, r);
+                    var sr2 = sn.Op(sr, sr);
+                    if (sr2.HashCode == sn.Identity.HashCode)
                     {
                         Console.WriteLine("(s * r) * (s * r) = id");
-                        e0.Display("s");
-                        e1.Display("r");
+                        s.Display("s");
+                        r.Display("r");
                         Console.WriteLine("s * r");
-                        e2.Display(" ");
+                        sr.Display(" ");
                         Console.WriteLine();
 
-                        sn.DetailSubGroup(e0, e1);
+                        sn.DetailSubGroup(s, r);
                         return;
                     }
                 }
