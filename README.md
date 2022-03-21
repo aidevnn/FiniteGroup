@@ -286,80 +286,79 @@ j = ( 7)[12]
 k = (11)[12]
 ```
 
-# Dihedral Dn generations
+# Dihedral Dn generations with respect to the convexity.
 
 ```
 Sn.Dihedral(4);
 
-(e0 * e1) * (e0 * e1) = id
-e0 = ( 1  2  4  3)[2-]
-e1 = ( 3  4  2  1)[4-]
-e0 * e1
-   = ( 4  3  2  1)[2+]
+(s * r) * (s * r) = id
+s = ( 1  4  3  2)[2-]
+r = ( 2  3  4  1)[4-]
+s * r
+  = ( 4  3  2  1)[2+]
 
 |G| = 8 in S4
 @ = ( 1  2  3  4)[1+]
-a = ( 1  2  4  3)[2-]
-b = ( 2  1  3  4)[2-]
-c = ( 2  1  4  3)[2+]
+a = ( 1  4  3  2)[2-]
+b = ( 2  1  4  3)[2+]
+c = ( 3  2  1  4)[2-]
 d = ( 3  4  1  2)[2+]
 e = ( 4  3  2  1)[2+]
-f = ( 3  4  2  1)[4-]
-g = ( 4  3  1  2)[4-]
+f = ( 2  3  4  1)[4-]
+g = ( 4  1  2  3)[4-]
 
 |G| = 8 in S4
  *|@ a b c d e f g
 --|----------------
  @|@ a b c d e f g
- a|a @ c b f g d e
- b|b c @ a g f e d
- c|c b a @ e d g f
- d|d g f e @ c b a
- e|e f g d c @ a b
- f|f e d g a b c @
- g|g d e f b a @ c
-
+ a|a @ f d c g b e
+ b|b g @ f e d c a
+ c|c d g @ a f e b
+ d|d c e a @ b g f
+ e|e f d g b @ a c
+ f|f e a b g c d @
+ g|g b c e f a @ d
 
 ```
 And D6 
 ```
 Sn.Dihedral(6);
 
-(e0 * e1) * (e0 * e1) = id
-e0 = ( 1  2  3  4  6  5)[2-]
-e1 = ( 1  3  2  5  6  4)[6-]
-e0 * e1
-   = ( 1  3  2  6  5  4)[2+]
+(s * r) * (s * r) = id
+s = ( 1  6  5  4  3  2)[2+]
+r = ( 2  3  4  5  6  1)[6-]
+s * r
+  = ( 6  5  4  3  2  1)[2-]
 
 |G| = 12 in S6
 @ = ( 1  2  3  4  5  6)[1+]
-a = ( 1  2  3  4  6  5)[2-]
-b = ( 1  2  3  5  4  6)[2-]
-c = ( 1  2  3  6  5  4)[2-]
-d = ( 1  3  2  4  5  6)[2-]
-e = ( 1  3  2  4  6  5)[2+]
-f = ( 1  3  2  5  4  6)[2+]
-g = ( 1  3  2  6  5  4)[2+]
-h = ( 1  2  3  5  6  4)[3+]
-i = ( 1  2  3  6  4  5)[3+]
-j = ( 1  3  2  5  6  4)[6-]
-k = ( 1  3  2  6  4  5)[6-]
+a = ( 1  6  5  4  3  2)[2+]
+b = ( 2  1  6  5  4  3)[2-]
+c = ( 3  2  1  6  5  4)[2+]
+d = ( 4  3  2  1  6  5)[2-]
+e = ( 4  5  6  1  2  3)[2-]
+f = ( 5  4  3  2  1  6)[2+]
+g = ( 6  5  4  3  2  1)[2-]
+h = ( 3  4  5  6  1  2)[3+]
+i = ( 5  6  1  2  3  4)[3+]
+j = ( 2  3  4  5  6  1)[6-]
+k = ( 6  1  2  3  4  5)[6-]
 
 |G| = 12 in S6
  *|@ a b c d e f g h i j k
 --|------------------------
  @|@ a b c d e f g h i j k
- a|a @ h i e d j k b c f g
- b|b i @ h f k d j c a g e
- c|c h i @ g j k d a b e f
- d|d e f g @ a b c j k h i
- e|e d j k a @ h i f g b c
- f|f k d j b i @ h g e c a
- g|g j k d c h i @ e f a b
- h|h c a b j g e f i @ k d
- i|i b c a k f g e @ h d j
- j|j g e f h c a b k d i @
- k|k f g e i b c a d j @ h
+ a|a @ j h e d i k c f b g
+ b|b k @ j h f e i d g c a
+ c|c i k @ j g h e f a d b
+ d|d e i k @ a j h g b f c
+ e|e d f g a @ b c k j i h
+ f|f h e i k b @ j a c g d
+ g|g j h e i c k @ b d a f
+ h|h f g a b k c d i @ e j
+ i|i c d f g j a b @ h k e
+ j|j g a b c i d f e k h @
+ k|k b c d f h g a j e @ i
 
 
 ```

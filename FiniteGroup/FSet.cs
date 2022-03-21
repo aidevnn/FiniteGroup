@@ -58,18 +58,17 @@ namespace FiniteGroup
 
         public U GetElement<U>(int hash) where U : AObj => (U)elts[hash];
 
-        public IEnumerable<AObj> Elements => elts.Values;
+        public IEnumerable<U> Elements<U>() where U : AObj => elts.Values.Cast<U>();
     }
 
     public abstract class Table : FSet
     {
+        readonly Dictionary<(int, int), int> tableOp = new Dictionary<(int, int), int>();
+        private int IdHash;
+
         protected Table(int[] arr) : base(arr) { }
         protected Table(int hash) : base(hash) { }
 
-        readonly Dictionary<(int, int), int> tableOp = new Dictionary<(int, int), int>();
-
-        private int IdHash;
-        protected bool TableOpContains(int h0, int h1) => tableOp.ContainsKey((h0, h1));
         protected void TableOpAdd(int h0, int h1, int h2)
         {
             tableOp[(h0, h1)] = h2;
@@ -84,8 +83,9 @@ namespace FiniteGroup
             }
         }
 
-        protected int GetInvert(int h) => tableOp[(h, -1)];
-        protected int TableOp(int h0, int h1) => tableOp[(h0, h1)];
+        public bool TableOpContains(int h0, int h1) => tableOp.ContainsKey((h0, h1));
+        public int GetInvert(int h) => tableOp[(h, -1)];
+        public int TableOp(int h0, int h1) => tableOp[(h0, h1)];
     }
 
     public abstract class Elt : AObj, IComparable<Elt>

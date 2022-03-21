@@ -22,7 +22,6 @@ namespace FiniteGroup
             FSet = sn;
             table = arr.ToArray();
             Sgn = Helpers.ComputeSign(table);
-            sn.AddElt(this);
         }
 
         public Sn Sn => (Sn)FSet;
@@ -31,7 +30,7 @@ namespace FiniteGroup
         public override string TableStr => string.Join(" ", table.Skip(1).Select(a => $"{a,2}"));
     }
 
-    public class Sn : FGroup<Permutation>
+    public partial class Sn : FGroup<Permutation>
     {
         public int N { get; private set; }
         private readonly Permutation identity;
@@ -63,14 +62,22 @@ namespace FiniteGroup
             Helpers.ComposePermutation(cache0, cache1, cache2);
             var hash = Helpers.GenHash(N, cache2);
             if (FSetContains(hash))
-                return (Permutation)GetElement(hash);
+                return GetElement<Permutation>(hash);
 
-            return new Permutation(this, cache2, hash);
+            var p = new Permutation(this, cache2, hash);
+            AddElt(p);
+            return p;
+        }
+
+        protected override void Finalized()
+        {
+            var perms = Helpers.AllPermutation(N, false);
+            foreach (var arr in perms) Array(arr);
         }
 
         public Permutation Array(params int[] arr)
         {
-            if (arr.Any(c0 => c0 < 0 || c0 > N))
+            if (arr.Any(c0 => c0 < 1 || c0 > N))
                 return Identity;
 
             if (arr.Distinct().Count() != N)
@@ -81,23 +88,9 @@ namespace FiniteGroup
             if (FSetContains(hash))
                 return (Permutation)GetElement(hash);
 
-            return new Permutation(this, cache0, hash);
-        }
-
-        public Permutation Array2(params int[] arr)
-        {
-            if (arr.Any(c0 => c0 < 0 || c0 > N))
-                return Identity;
-
-            if (arr.Distinct().Count() != N + 1)
-                return Identity;
-
-            arr.CopyTo(cache0, 0);
-            int hash = Helpers.GenHash(N, cache0);
-            if (FSetContains(hash))
-                return (Permutation)GetElement(hash);
-
-            return new Permutation(this, cache0, hash);
+            var p = new Permutation(this, cache0, hash);
+            AddElt(p);
+            return p;
         }
 
         public Permutation Cycle(params int[] cycle)
@@ -109,16 +102,14 @@ namespace FiniteGroup
                 return Identity;
 
             Identity.CopyTo(cache0);
-            var c = cache0[cycle[0]];
-            for (int k = 0; k < cycle.Length - 1; ++k)
-                cache0[cycle[k]] = cache0[cycle[k + 1]];
-
-            cache0[cycle[cycle.Length - 1]] = c;
+            Helpers.ComposeCycle(cache0, cycle);
             var hash = Helpers.GenHash(N, cache0);
             if (FSetContains(hash))
                 return (Permutation)GetElement(hash);
 
-            return new Permutation(this, cache0, hash);
+            var p = new Permutation(this, cache0, hash);
+            AddElt(p);
+            return p;
         }
 
         public Permutation Tau(int a) => Cycle(1, a);
@@ -128,38 +119,5 @@ namespace FiniteGroup
 
         public Permutation[] AllTransposition => Enumerable.Range(2, N - 1).Select(a => Tau(1, a)).ToArray();
 
-        public static void DisplaySn(params Permutation[] permutations) => permutations[0].Sn.DisplayGroup(permutations);
-        public static void TableSn(params Permutation[] permutations) => permutations[0].Sn.TableGroup(permutations);
-        public static void DetailSn(params Permutation[] permutations) => permutations[0].Sn.DetailGroup(permutations);
-
-        public static void Dihedral(int n)
-        {
-            var sn = new Sn(n);
-            var perms = Helpers.AllPermutation(n);
-            var gr = new SortedSet<Permutation>();
-            foreach (var arr in perms)
-                gr.Add(sn.Array2(arr));
-
-            foreach (var e0 in gr.Where(a => a.Order == 2))
-            {
-                foreach (var e1 in gr.Where(a => a.Order == n))
-                {
-                    var e2 = sn.Op(e0, e1);
-                    var e3 = sn.Op(e2, e2);
-                    if (e3.HashCode == sn.Identity.HashCode)
-                    {
-                        Console.WriteLine("(e0 * e1) * (e0 * e1) = id");
-                        e0.Display("e0");
-                        e1.Display("e1");
-                        Console.WriteLine("e0 * e1");
-                        e2.Display("  ");
-                        Console.WriteLine();
-
-                        sn.DetailGroup(e0, e1);
-                        return;
-                    }
-                }
-            }
-        }
     }
 }

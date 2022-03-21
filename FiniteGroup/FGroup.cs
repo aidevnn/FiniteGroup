@@ -32,8 +32,37 @@ namespace FiniteGroup
 
         protected abstract T DefineOp(T e0, T e1);
         public abstract T Identity { get; }
+        private bool initialized = false, finalized = false;
+        private FSubGroup<T> self, identitySubGroup;
+        protected abstract void Finalized();
+        public FSubGroup<T> IdentitySubGroup
+        {
+            get
+            {
+                if (initialized)
+                    return identitySubGroup;
 
-        public void AddElt(T e)
+                identitySubGroup = new FSubGroup<T>(this);
+                initialized = true;
+                return identitySubGroup;
+            }
+        }
+
+        public FSubGroup<T> SelfSubGroup
+        {
+            get
+            {
+                if (finalized)
+                    return self;
+
+                Finalized();
+                finalized = true;
+                self = SubGroup(Elements<T>().ToArray());
+                return self;
+            }
+        }
+
+        protected void AddElt(T e)
         {
             SetAdd(e);
             Generate(e);
@@ -52,7 +81,7 @@ namespace FiniteGroup
             return e2;
         }
 
-        public void Generate(T e0)
+        protected void Generate(T e0)
         {
             if (e0.Generated.Count == 0)
                 e0.Generated.Add(Identity.HashCode);
@@ -71,44 +100,19 @@ namespace FiniteGroup
             Generate(e0);
         }
 
-        protected HashSet<T> Group(params T[] elts)
+        public List<T> OfOrder(int ord)
         {
-            var hs = new HashSet<T>(new ObjEquality<T>());
-            int sz = 0;
-            foreach (var e0 in elts)
-            {
-                hs.Add(e0);
-                foreach (var e1 in e0.Generated)
-                    hs.Add(GetElement<T>(e1));
-            }
-
-            do
-            {
-                sz = hs.Count;
-                var lt = hs.ToHashSet();
-                foreach (var e0 in lt)
-                    foreach (var e1 in lt)
-                    {
-                        T e2;
-                        if (TableOpContains(e0.HashCode, e1.HashCode))
-                            e2 = (T)GetElement(TableOp(e0.HashCode, e1.HashCode));
-                        else
-                            e2 = Op(e0, e1);
-
-                        hs.Add(e2);
-                    }
-
-            } while (hs.Count != sz);
-
-            return hs;
+            var set = Elements<T>().Where(a => a.Order == ord).ToList();
+            set.Sort();
+            return set;
         }
 
-        public void Display()
-        {
-            var set = Elements.Cast<T>().ToList();
-            set.Sort();
-            DisplayGroup(this, set);
+        public FSubGroup<T> SubGroup(params T[] elts) => IdentitySubGroup.GenerateSubGroup(elts);
 
+        public void DisplayHashTable()
+        {
+            var set = Elements<T>().ToList();
+            set.Sort();
             foreach (var e0 in set)
             {
                 Console.WriteLine("({0}) Invert : ({1})", e0.TableStr, Invert(e0).TableStr);
@@ -124,120 +128,11 @@ namespace FiniteGroup
             Console.WriteLine();
         }
 
-        protected void DisplayGroup(params T[] elts)
-        {
-            var set = Group(elts).ToList();
-            set.Sort();
+        protected void DisplaySubGroup(params T[] elts) => SubGroup(elts).DisplayElements();
 
-            DisplayGroup(this, set);
-            Console.WriteLine();
-        }
+        protected void TableSubGroup(params T[] elts) => SubGroup(elts).Table();
 
-        protected void TableGroup(params T[] elts)
-        {
-            var set = Group(elts).ToList();
-            set.Sort();
+        protected void DetailSubGroup(params T[] elts) => SubGroup(elts).Details();
 
-            TableGroup(this, set);
-            Console.WriteLine();
-        }
-
-        protected void DetailGroup(params T[] elts)
-        {
-            var set = Group(elts).ToList();
-            set.Sort();
-
-            DisplayGroup(this, set);
-            TableGroup(this, set);
-            Console.WriteLine();
-        }
-
-        static List<string> GenLetters(int n)
-        {
-            if (n > 50)
-                return Enumerable.Range(1, n).Select(a => $"E{a,2:0000}").ToList();
-
-            return "@abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ".Take(n).Select(c => $"{c}").ToList();
-        }
-
-        protected static void Display(FGroup<T> gr, params T[] elts)
-        {
-            if (!elts.All(e => e.FSet.HashCode == gr.HashCode))
-                return;
-
-            gr.DisplayGroup(elts);
-        }
-
-        protected static void Table(FGroup<T> gr, params T[] elts)
-        {
-            if (!elts.All(e => e.FSet.HashCode == gr.HashCode))
-                return;
-
-            gr.TableGroup(elts);
-        }
-
-        protected static void Detail(FGroup<T> gr, params T[] elts)
-        {
-            if (!elts.All(e => e.FSet.HashCode == gr.HashCode))
-                return;
-
-            gr.DetailGroup(elts);
-        }
-
-        static void DisplayGroup(FGroup<T> gr, List<T> set)
-        {
-            Console.WriteLine(gr.Fmt, set.Count);
-
-            if (set.Count > 1000)
-            {
-                Console.WriteLine("TOO BIG");
-                return;
-            }
-
-            var word = GenLetters(set.Count);
-            for (int k = 0; k < set.Count; ++k)
-                set[k].Display(word[k].ToString());
-
-            Console.WriteLine();
-        }
-
-        static void TableGroup(FGroup<T> gr, List<T> set)
-        {
-            Console.WriteLine(gr.Fmt, set.Count);
-
-            if (set.Count > 50)
-            {
-                Console.WriteLine("TOO BIG");
-                return;
-            }
-
-            var word = GenLetters(set.Count).Select(w => w[0]).ToList();
-            Dictionary<char, T> ce = new Dictionary<char, T>();
-            Dictionary<T, char> ec = new Dictionary<T, char>(new ObjEquality<T>());
-
-            for (int k = 0; k < set.Count; ++k)
-            {
-                var c = word[k];
-                var e = set.ElementAt(k);
-                ce[c] = e;
-                ec[e] = c;
-            }
-
-            string MyFormat(string c, string g, List<char> l) => string.Format("{0,2}|{1}", c, string.Join(g, l));
-
-            var head = MyFormat("*", " ", word);
-            var line = MyFormat("--", "", Enumerable.Repeat('-', word.Count * 2).ToList());
-            Console.WriteLine(head);
-            Console.WriteLine(line);
-
-            foreach (var e0 in set)
-            {
-                var v0 = ec[e0].ToString();
-                var l0 = set.Select(e1 => ec[gr.Op(e1, e0)]).ToList();
-                Console.WriteLine(MyFormat(v0, " ", l0));
-            }
-
-            Console.WriteLine();
-        }
     }
 }

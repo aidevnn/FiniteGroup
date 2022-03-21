@@ -18,7 +18,6 @@ namespace FiniteGroup
             FSet = zn;
             table = arr.ToArray();
             Sgn = 1;
-            zn.AddElt(this);
         }
 
         public Zn Zn => (Zn)FSet;
@@ -29,7 +28,7 @@ namespace FiniteGroup
         public int CompareTo(Modulo other) => base.CompareTo(other);
     }
 
-    public class Zn : FGroup<Modulo>
+    public partial class Zn : FGroup<Modulo>
     {
         public int[] Dims { get; private set; }
         private readonly Modulo identity;
@@ -48,6 +47,11 @@ namespace FiniteGroup
         }
 
         public override Modulo Identity => identity;
+        protected override void Finalized()
+        {
+            var tuples = Helpers.AllTuples(Dims);
+            foreach (var e in tuples) Elt(e);
+        }
 
         protected override Modulo DefineOp(Modulo e0, Modulo e1)
         {
@@ -61,7 +65,9 @@ namespace FiniteGroup
             if (FSetContains(hash))
                 return (Modulo)GetElement(hash);
 
-            return new Modulo(this, cache2, hash);
+            var m = new Modulo(this, cache2, hash);
+            AddElt(m);
+            return m;
         }
 
         public Modulo Canonical(int rank) => Elt(Helpers.Canonic(Dims.Length, rank));
@@ -76,19 +82,10 @@ namespace FiniteGroup
             if (FSetContains(hash))
                 return (Modulo)GetElement(hash);
 
-            return new Modulo(this, cache2, hash);
+            var m = new Modulo(this, cache2, hash);
+            AddElt(m);
+            return m;
         }
 
-        public static void DisplayZn(params Modulo[] modulos) => modulos[0].Zn.DisplayGroup(modulos);
-        public static void TableZn(params Modulo[] modulos) => modulos[0].Zn.TableGroup(modulos);
-        public static void DetailZn(params Modulo[] modulos) => modulos[0].Zn.DetailGroup(modulos);
-
-        public static void DisplayZn(Zn zn) => DisplayZn(zn.CanonicalBase);
-        public static void TableZn(Zn zn) => TableZn(zn.CanonicalBase);
-        public static void DetailZn(Zn zn) => DetailZn(zn.CanonicalBase);
-
-        public static void DisplayZn(params int[] dims) => DisplayZn(new Zn(dims));
-        public static void TableZn(params int[] dims) => TableZn(new Zn(dims));
-        public static void DetailZn(params int[] dims) => DetailZn(new Zn(dims));
     }
 }

@@ -44,6 +44,10 @@
     <Compile Include="FGroup.cs" />
     <Compile Include="Sn.cs" />
     <Compile Include="Zn.cs" />
+    <Compile Include="FSubGroup.cs" />
+    <Compile Include="Sn.ext.cs" />
+    <Compile Include="MyTuples.cs" />
+    <Compile Include="Zn.ext.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="..\README.md">
