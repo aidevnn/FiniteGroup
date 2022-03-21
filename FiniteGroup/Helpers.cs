@@ -73,29 +73,29 @@ namespace FiniteGroup
             arr0[cycle[cycle.Length - 1]] = c;
         }
 
-        public static int[][] DecomposeCycle(int[] arr0)
-        {
-            List<List<int>> all = new List<List<int>>();
-            HashSet<int> seq = new HashSet<int>(Enumerable.Range(0, arr0.Length));
-            while (seq.Count != 0)
-            {
-                var t0 = seq.First();
-                seq.Remove(t0);
-                var tmp = new List<int>();
-                var t1 = t0;
-                while(true)
-                {
-                    t0 = t1;
-                    tmp.Add(t0);
-                    t1 = arr0[t0];
-                    if (t0 != t1) seq.Remove(t1);
-                    else break;
-                }
-                all.Add(tmp);
-            }
+        //public static int[][] DecomposeCycle(int[] arr0)
+        //{
+        //    List<List<int>> all = new List<List<int>>();
+        //    HashSet<int> seq = new HashSet<int>(Enumerable.Range(0, arr0.Length));
+        //    while (seq.Count != 0)
+        //    {
+        //        var t0 = seq.First();
+        //        seq.Remove(t0);
+        //        var tmp = new List<int>();
+        //        var t1 = t0;
+        //        while(true)
+        //        {
+        //            t0 = t1;
+        //            tmp.Add(t0);
+        //            t1 = arr0[t0];
+        //            if (t0 != t1) seq.Remove(t1);
+        //            else break;
+        //        }
+        //        all.Add(tmp);
+        //    }
 
-            return all.Select(a => a.ToArray()).ToArray();
-        }
+        //    return all.Select(a => a.ToArray()).ToArray();
+        //}
 
         public static int ComputeOrder(int[] arr0, int[] arr1, int[] arr2)
         {
