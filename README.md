@@ -286,8 +286,8 @@ j = ( 7)[12]
 k = (11)[12]
 ```
 
-# Dihedral Dn generations with respect to the convexity.
-
+# Dihedral Dn generations
+###  with respect to the convexity.
 ```
 Sn.Dihedral(4);
 
