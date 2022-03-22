@@ -8,84 +8,89 @@ namespace FiniteGroup
     {
         public Modulo(Zn zn) : base(0)
         {
-            FSet = zn;
             table = new int[zn.Dims.Length];
-            Sgn = 1;
+            FSet = zn;
+            AddHashGenerated(0);
         }
 
         public Modulo(Zn zn, int[] arr, int hash) : base(hash)
         {
             FSet = zn;
             table = arr.ToArray();
-            Sgn = 1;
+            AddHashGenerated(zn.Identity.HashCode);
+            AddHashGenerated(HashCode);
         }
 
-        public Zn Zn => (Zn)FSet;
+        string OrderStr => $"{Order,2}";
+        string TableStr => string.Join(", ", table.Select(e => $"{e,2}"));
+        public override string[] DisplayInfos => new string[] { TableStr, OrderStr };
 
-        public override string OrderStr => $"{Order}";
-        public override string TableStr => string.Join(", ", table.Select(a => $"{a,2}"));
+        public int CompareTo(Modulo other)
+        {
+            var compOrd = Order.CompareTo(other.Order);
+            if (compOrd != 0)
+                return compOrd;
 
-        public int CompareTo(Modulo other) => base.CompareTo(other);
+            return base.CompareTo(other);
+        }
+
     }
 
-    public partial class Zn : FGroup<Modulo>
+    public class Zn : FGroup<Modulo>
     {
-        public int[] Dims { get; private set; }
-        private readonly Modulo identity;
+        public int[] Dims { get; }
         public Zn(params int[] dims) : base(dims)
         {
             Dims = dims.ToArray();
-            FmtElt = "({1})[{0}]";
-            var gr = string.Join(" x ", Dims.Select(n => $"Z/{n}Z"));
+
+            var gr = string.Join(" x ", dims.Select(n => $"Z/{n}Z"));
             Fmt = "|G| = {0} in " + gr;
-            cache0 = new int[Dims.Length];
-            cache1 = new int[Dims.Length];
-            cache2 = new int[Dims.Length];
-            identity = new Modulo(this);
-            TableOpAdd(identity.HashCode, identity.HashCode, identity.HashCode);
-            AddElt(identity);
+            FmtElt = "({0})[{1}]";
+
+            CreateCaches(Dims.Length);
+            CreateIdentity(new Modulo(this));
         }
 
-        public override Modulo Identity => identity;
-        protected override void Finalized()
-        {
-            var tuples = Helpers.AllTuples(Dims);
-            foreach (var e in tuples) Elt(e);
-        }
-
-        protected override Modulo DefineOp(Modulo e0, Modulo e1)
-        {
-            if (e0.FSet.HashCode != e1.FSet.HashCode)
-                return Identity;
-
-            e0.CopyTo(cache0);
-            e1.CopyTo(cache1);
-            Helpers.AddMod(Dims, cache0, cache1, cache2);
-            var hash = Helpers.GenHash(Dims, cache2);
-            if (FSetContains(hash))
-                return (Modulo)GetElement(hash);
-
-            var m = new Modulo(this, cache2, hash);
-            AddElt(m);
-            return m;
-        }
-
-        public Modulo Canonical(int rank) => Elt(Helpers.Canonic(Dims.Length, rank));
-        public Modulo[] CanonicalBase => Enumerable.Range(0, Dims.Length).Select(Canonical).ToArray();
-
-        public Modulo Elt(params int[] arr)
+        protected override Modulo DefineOp(Modulo a, Modulo b)
         {
             ClearCaches();
-            arr.CopyTo(cache0, 0);
+            a.CopyTo(cache0);
+            b.CopyTo(cache1);
             Helpers.AddMod(Dims, cache0, cache1, cache2);
-            var hash = Helpers.GenHash(Dims, cache2);
+            int hash = Helpers.GenHash(Dims, cache2);
             if (FSetContains(hash))
-                return (Modulo)GetElement(hash);
+                return GetElement<Modulo>(hash);
+
+            return new Modulo(this, cache2, hash);
+        }
+
+        public Modulo Elt(params int[] e)
+        {
+            ClearCaches();
+            e.ReCopyTo(cache0);
+            Helpers.AddMod(Dims, cache0, cache1, cache2);
+            int hash = Helpers.GenHash(Dims, cache2);
+            if (FSetContains(hash))
+                return GetElement<Modulo>(hash);
 
             var m = new Modulo(this, cache2, hash);
-            AddElt(m);
+            FGroupAdd(m);
             return m;
         }
 
+        public Modulo Canonic(int rank) => Elt(Helpers.Canonic(Dims.Length, rank));
+        public Modulo[] CanonicBase() => Enumerable.Range(0, Dims.Length).Select(Canonic).ToArray();
+
+        public Modulo Elt(SingleTuple tuple) => Elt(tuple.Table);
+
+        public SubFGroup<Modulo> MonoGenic(SingleTuple tuple) => MonoGenic(Elt(tuple));
+        public SubFGroup<Modulo> From(params SingleTuple[] tuples) => LeftCompose(tuples.Select(Elt).ToArray());
+        public SubFGroup<Modulo> LeftCompose(SingleTuple tuple, SubFGroup<Modulo> subFGroup, bool amplify = false) => new LeftOp<Modulo>(this, Elt(tuple), subFGroup, amplify);
+
+        public static Zn Dim(params int[] dims) => new Zn(dims);
+        public void Display() => LeftCompose(CanonicBase()).DisplayElements();
+        public void Details() => LeftCompose(CanonicBase()).Details();
+        public static void Details(params int[] dims) => Dim(dims).Details();
+        public static void Display(params int[] dims) => Dim(dims).Display();
     }
 }

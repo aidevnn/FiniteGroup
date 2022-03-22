@@ -6,6 +6,17 @@ namespace FiniteGroup
 {
     public static class Helpers
     {
+        public static void ReCopyTo(this int[] arr0, int[] arr1, int start = 0)
+        {
+            var step = Math.Min(arr0.Length - start, arr1.Length - start);
+            for (int k = 0; k < step; ++k)
+                arr1[k + start] = arr0[k + start];
+
+        }
+
+        public static int[] SnIdentity(int n) => Enumerable.Range(0, n + 1).ToArray();
+        public static int SnIdHash(int n) => GenHash(n, SnIdentity(n));
+
         public static int GenHash(int[] n, int[] m)
         {
             var pow = 1;
@@ -62,6 +73,17 @@ namespace FiniteGroup
         {
             for (int k = 0; k < arr2.Length; ++k)
                 arr2[k] = arr0[arr1[k]];
+        }
+
+        public static bool CheckArray(int n, int[] cycle)
+        {
+            if (cycle.Min() < 1 || cycle.Max() > n)
+                return false;
+
+            if (cycle.Distinct().Count() != cycle.Length)
+                return false;
+
+            return true;
         }
 
         public static void ComposeCycle(int[] arr0, int[] cycle)

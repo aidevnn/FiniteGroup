@@ -41,6 +41,7 @@ namespace FiniteGroup
         public static implicit operator ManyTuples((int a, int b, int c, int d, int e) p) => new ManyTuples(p);
         public static implicit operator ManyTuples((int a, int b, int c, int d, int e, int f) p) => new ManyTuples(p);
 
+        public static implicit operator ManyTuples(SingleTuple mc) => new ManyTuples(mc);
         public static implicit operator ManyTuples((SingleTuple a, SingleTuple b) mc) => new ManyTuples(mc.a, mc.b);
         public static implicit operator ManyTuples((SingleTuple a, SingleTuple b, SingleTuple c) mc) => new ManyTuples(mc.a, mc.b, mc.c);
         public static implicit operator ManyTuples((SingleTuple a, SingleTuple b, SingleTuple c, SingleTuple d) mc) => new ManyTuples(mc.a, mc.b, mc.c, mc.d);

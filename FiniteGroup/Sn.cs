@@ -6,118 +6,166 @@ namespace FiniteGroup
 {
     public class Permutation : GElt, IComparable<Permutation>
     {
-        static int HashId(int n) => Helpers.GenHash(n, Enumerable.Range(0, n + 1).ToArray());
-
-        public int CompareTo(Permutation other) => base.CompareTo(other);
-
-        public Permutation(Sn sn) : base(HashId(sn.N))
+        public Permutation(Sn sn) : base(Helpers.SnIdHash(sn.N))
         {
-            FSet = sn;
-            table = Enumerable.Range(0, sn.N + 1).ToArray();
+            table = Helpers.SnIdentity(sn.N);
+            FSet = Sn = sn;
             Sgn = 1;
+            AddHashGenerated(HashCode);
         }
 
         public Permutation(Sn sn, int[] arr, int hash) : base(hash)
         {
-            FSet = sn;
             table = arr.ToArray();
-            Sgn = Helpers.ComputeSign(table);
+            FSet = Sn = sn;
+            Sgn = Helpers.ComputeSign(arr);
+            AddHashGenerated(sn.Identity.HashCode);
+            AddHashGenerated(HashCode);
         }
 
-        public Sn Sn => (Sn)FSet;
+        public Sn Sn { get; }
 
-        public override string OrderStr => Sgn == 1 ? $"{Order}+" : $"{Order}-";
-        public override string TableStr => string.Join(" ", table.Skip(1).Select(a => $"{a,2}"));
+        public int Sgn { get; }
+        string SgnStr => Sgn == 1 ? "+" : "-";
+        string OrderStr => $"{Order,2}{SgnStr}";
+        string TableStr => string.Join(" ", table.Skip(1).Select(e => $"{e,2}"));
+        public override string[] DisplayInfos => new string[] { TableStr, OrderStr };
+
+        public int CompareTo(Permutation other)
+        {
+            var compOrd = Order.CompareTo(other.Order);
+            if (compOrd != 0)
+                return compOrd;
+
+            var compSgn = Sgn.CompareTo(other.Sgn);
+            if (compSgn != 0)
+                return compSgn;
+
+            return base.CompareTo(other);
+        }
     }
 
-    public partial class Sn : FGroup<Permutation>
+    public class Sn : FGroup<Permutation>
     {
-        public int N { get; private set; }
-        private readonly Permutation identity;
-
+        public int N { get; }
         public Sn(int n) : base(n)
         {
-            if (n < 1)
-                n = 1;
+            N = Math.Max(2, n);
 
-            N = n;
-            FmtElt = "({1})[{0}]";
-            Fmt = "|G| = {0} in " + $"S{n}";
-            cache0 = new int[N + 1];
-            cache1 = new int[N + 1];
-            cache2 = new int[N + 1];
-            identity = new Permutation(this);
-            TableOpAdd(identity.HashCode, identity.HashCode, identity.HashCode);
-            AddElt(identity);
+            var gr = $"S{N}";
+            Fmt = "|G| = {0} in " + gr;
+            FmtElt = "({0})[{1}]";
+
+            CreateCaches(N + 1);
+            CreateIdentity(new Permutation(this));
         }
 
-        public override Permutation Identity => identity;
-        protected override Permutation DefineOp(Permutation e0, Permutation e1)
+        private Permutation TableCache2()
         {
-            if (e0.FSet.HashCode != e1.FSet.HashCode)
-                return Identity;
-
-            e0.CopyTo(cache0);
-            e1.CopyTo(cache1);
-            Helpers.ComposePermutation(cache0, cache1, cache2);
-            var hash = Helpers.GenHash(N, cache2);
+            int hash = Helpers.GenHash(N, cache2);
             if (FSetContains(hash))
                 return GetElement<Permutation>(hash);
 
             var p = new Permutation(this, cache2, hash);
-            AddElt(p);
+            FGroupAdd(p);
             return p;
         }
 
-        protected override void Finalized()
+        protected override Permutation DefineOp(Permutation a, Permutation b)
         {
-            var perms = Helpers.AllPermutation(N, false);
-            foreach (var arr in perms) Array(arr);
-        }
+            ClearCaches();
+            a.CopyTo(cache0);
+            b.CopyTo(cache1);
+            Helpers.ComposePermutation(cache0, cache1, cache2);
 
-        public Permutation Array(params int[] arr)
-        {
-            if (arr.Any(c0 => c0 < 1 || c0 > N))
-                return Identity;
-
-            if (arr.Distinct().Count() != N)
-                return Identity;
-
-            arr.CopyTo(cache0, 1);
-            int hash = Helpers.GenHash(N, cache0);
-            if (FSetContains(hash))
-                return (Permutation)GetElement(hash);
-
-            var p = new Permutation(this, cache0, hash);
-            AddElt(p);
-            return p;
+            return TableCache2();
         }
 
         public Permutation Cycle(params int[] cycle)
         {
-            if (cycle.Any(c0 => c0 < 0 || c0 > N))
+            if (!Helpers.CheckArray(N, cycle))
                 return Identity;
 
-            if (cycle.Distinct().Count() != cycle.Count())
-                return Identity;
-
-            Identity.CopyTo(cache0);
-            Helpers.ComposeCycle(cache0, cycle);
-            var hash = Helpers.GenHash(N, cache0);
-            if (FSetContains(hash))
-                return (Permutation)GetElement(hash);
-
-            var p = new Permutation(this, cache0, hash);
-            AddElt(p);
-            return p;
+            ClearCaches();
+            Helpers.SnIdentity(N).ReCopyTo(cache2);
+            Helpers.ComposeCycle(cache2, cycle);
+            return TableCache2();
         }
 
-        public Permutation Tau(int a) => Cycle(1, a);
-        public Permutation Tau(int a, int b) => Cycle(a, b);
-        public Permutation RCycle(int start, int count) => Cycle(Enumerable.Range(start, count).ToArray());
-        public Permutation PCycle(int count) => RCycle(1, count);
+        public Permutation Cycle(SingleTuple tuple) => Cycle(tuple.Table);
 
-        public Permutation[] AllTransposition => Enumerable.Range(2, N - 1).Select(a => Tau(1, a)).ToArray();
+        public Permutation Cycles(ManyTuples tuples)
+        {
+            if (tuples.Tuples.Any(c => !Helpers.CheckArray(N, c.Table)))
+                return Identity;
 
+            ClearCaches();
+            Helpers.SnIdentity(N).ReCopyTo(cache2);
+            foreach (var c in tuples.Tuples)
+                Helpers.ComposeCycle(cache2, c.Table);
+
+            return TableCache2();
+        }
+
+        SubFGroup<Permutation> MonoGenic(SingleTuple tuple) => MonoGenic(Cycle(tuple));
+        SubFGroup<Permutation> LeftCompose(params SingleTuple[] tuples) => LeftCompose(tuples.Select(Cycle).ToArray());
+        SubFGroup<Permutation> LeftCompose(params ManyTuples[] tuples) => LeftCompose(tuples.Select(Cycles).ToArray());
+        SubFGroup<Permutation> LeftCompose(SingleTuple tuple, SubFGroup<Permutation> subFGroup, bool amplify = false) => new LeftOp<Permutation>(this, Cycle(tuple), subFGroup, amplify);
+
+        public static SingleTuple RC(int start, int count) => new SingleTuple(Enumerable.Range(start, count).ToArray());
+        public static SingleTuple PC(int n) => RC(1, n);
+        public static Sn Dim(int n) => new Sn(n);
+
+        public static void Dihedral(int n)
+        {
+            var sn = new Sn(n);
+            List<Permutation> permutations = new List<Permutation>();
+            var perms = Helpers.AllPermutation(n);
+            foreach (var p in perms)
+            {
+                if (!Helpers.Convexity(p))
+                    continue;
+
+                p.ReCopyTo(sn.cache2);
+                var pm = sn.TableCache2();
+                permutations.Add(pm);
+            }
+
+            permutations.Sort((a, b) => ((Elt)a).CompareTo(b));
+
+            foreach (var s in permutations.Where(a => a.Order == 2))
+            {
+                foreach (var r in permutations.Where(a => a.Order == n))
+                {
+                    var e0 = sn.Op(s, r);
+                    var e1 = sn.Op(e0, e0);
+                    if (e1.HashCode == sn.Identity.HashCode)
+                    {
+                        Console.WriteLine("(s * r) * (s * r) = id");
+                        s.Display("s");
+                        r.Display("r");
+                        Console.WriteLine("s * r");
+                        e0.Display(" ");
+                        Console.WriteLine();
+                        sn.LeftCompose(s, r).Details();
+                        return;
+                    }
+                }
+            }
+        }
+
+        public static SubFGroup<Permutation> From(params SingleTuple[] tuples)
+        {
+            var n = tuples.SelectMany(t => t.Table).Max();
+            var sn = new Sn(n);
+            return sn.LeftCompose(tuples);
+        }
+
+        public static SubFGroup<Permutation> From(params ManyTuples[] tuples)
+        {
+            var n = tuples.SelectMany(t => t.Tuples).SelectMany(u => u.Table).Max();
+            var sn = new Sn(n);
+            return sn.LeftCompose(tuples);
+        }
     }
 }

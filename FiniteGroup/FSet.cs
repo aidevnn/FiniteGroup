@@ -27,6 +27,8 @@ namespace FiniteGroup
         }
 
         public int HashCode { get; }
+
+        public override int GetHashCode() => HashCode;
     }
 
     public class ObjEquality<T> : EqualityComparer<T> where T : AObj
@@ -44,7 +46,7 @@ namespace FiniteGroup
         protected int[] cache0, cache1, cache2;
         public string FmtElt { get; protected set; }
         public string Fmt { get; protected set; }
-        public void ClearCaches()
+        protected void ClearCaches()
         {
             for (int k = 0; k < cache0.Length; ++k)
                 cache0[k] = cache1[k] = cache2[k] = 0;
@@ -53,17 +55,20 @@ namespace FiniteGroup
         readonly Dictionary<int, AObj> elts = new Dictionary<int, AObj>();
 
         protected bool FSetContains(int hash) => elts.ContainsKey(hash);
-        protected void SetAdd(AObj obj) => elts[obj.HashCode] = obj;
+        protected void FSetAdd(AObj obj) => elts[obj.HashCode] = obj;
         public AObj GetElement(int hash) => elts[hash];
 
         public U GetElement<U>(int hash) where U : AObj => (U)elts[hash];
 
         public IEnumerable<U> Elements<U>() where U : AObj => elts.Values.Cast<U>();
+
+        public override int GetHashCode() => base.GetHashCode();
     }
 
     public abstract class Table : FSet
     {
         readonly Dictionary<(int, int), int> tableOp = new Dictionary<(int, int), int>();
+        readonly HashSet<int> generationComplete = new HashSet<int>();
         private int IdHash;
 
         protected Table(int[] arr) : base(arr) { }
@@ -83,9 +88,14 @@ namespace FiniteGroup
             }
         }
 
+        protected void MakeCompleted(int hash) => generationComplete.Add(hash);
+        protected bool IsComplete(int hash) => generationComplete.Contains(hash);
+
         public bool TableOpContains(int h0, int h1) => tableOp.ContainsKey((h0, h1));
         public int GetInvert(int h) => tableOp[(h, -1)];
         public int TableOp(int h0, int h1) => tableOp[(h0, h1)];
+
+        public override int GetHashCode() => base.GetHashCode();
     }
 
     public abstract class Elt : AObj, IComparable<Elt>
@@ -93,14 +103,13 @@ namespace FiniteGroup
         public FSet FSet { get; set; }
         protected int[] table;
 
-        public void CopyTo(int[] cache) => table.CopyTo(cache, 0);
+        public void CopyTo(int[] cache) => table.ReCopyTo(cache);
 
         protected Elt(int[] dims, int[] arr) : base(dims, arr) { }
         protected Elt(int dim, int[] arr) : base(dim, arr) { }
         protected Elt(int hash) : base(hash) { }
 
-        public abstract string OrderStr { get; }
-        public abstract string TableStr { get; }
+        public abstract string[] DisplayInfos { get; }
 
         public override int GetHashCode() => base.GetHashCode();
 
@@ -108,10 +117,10 @@ namespace FiniteGroup
         {
             for (int k = 0; k < table.Length; ++k)
             {
-                var t0 = table[k];
-                var t1 = other.table[k];
-                if (t0 != t1)
-                    return t0.CompareTo(t1);
+                var e0 = table[k];
+                var e1 = other.table[k];
+                if (e0 != e1)
+                    return e0.CompareTo(e1);
             }
 
             return 0;
@@ -126,7 +135,6 @@ namespace FiniteGroup
             Console.WriteLine("{0} = {1}", nm, this);
         }
 
-        public override string ToString() => string.Format(FSet.FmtElt, OrderStr, TableStr);
+        public override string ToString() => string.Format(FSet.FmtElt, DisplayInfos);
     }
-
 }
