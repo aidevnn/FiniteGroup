@@ -55,7 +55,6 @@ e = ( 3  1  2)[ 3+]
 ## Disjunct 3-cycle and transposition.
 
 ```
-var s5 = new Sn(5);
 Sn.From((2, 3, 1), (4, 5)).Details();
 ```
 
