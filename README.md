@@ -88,10 +88,6 @@ e = ( 3  1  2  5  4)[ 6-]
 Zn.Dim(6).From(3).Details();
 Zn.Dim(6).From(4).Details();
 Zn.DetailZn(z6);
-            
-|G| = 2 in Z/6Z
-@ = ( 0)[1]
-a = ( 3)[2]
 
 |G| = 2 in Z/6Z
 @ = ( 0)[ 1]
@@ -102,8 +98,7 @@ a = ( 3)[ 2]
 --|----
  @|@ a
  a|a @
-
-
+ 
 |G| = 3 in Z/6Z
 @ = ( 0)[ 1]
 a = ( 2)[ 3]
@@ -115,8 +110,7 @@ b = ( 4)[ 3]
  @|@ a b
  a|a b @
  b|b @ a
-
-
+ 
 |G| = 6 in Z/6Z
 @ = ( 0)[ 1]
 a = ( 3)[ 2]
@@ -134,8 +128,6 @@ e = ( 5)[ 6]
  c|c d @ b e a
  d|d c a e b @
  e|e b d a @ c
-
-
 ```
 
 # Direct Product of Z/nZ
